@@ -17,17 +17,20 @@
 import tkinter as T
 from tkinter import filedialog
 import utils
+import constants
 
 
 class ViewerApp(T.Frame):
     def __init__(self, master):
 
         super().__init__(master)
+        self.config(background=constants.MAIN_BG)
         self.pack()
 
         self.cgrom = tuple(utils.generate_cgrom())
         self.asc_to_disp = utils.generate_asc_to_disp()
-        self.bitmaps = tuple(T.BitmapImage(data=bitmap)
+        self.bitmaps = tuple(T.BitmapImage(data=bitmap,
+                                           foreground=constants.WHITE)
                              for bitmap in utils.generate_bitmaps())
         self.flipped_values = tuple(utils.generate_flipped())
 
@@ -59,14 +62,17 @@ class ViewerApp(T.Frame):
 
         font_textbox = ("Monospace", -14)
 
-        self.t_adr = T.Text(f_hexdump, width=6, height=32, font=font_textbox)
+        self.t_adr = T.Text(f_hexdump, background=constants.WHITE,
+                            width=6, height=32, font=font_textbox)
         self.t_adr.grid(padx=10, pady=10)
 
-        self.t_hexdump = T.Text(f_hexdump, width=23, height=32,
+        self.t_hexdump = T.Text(f_hexdump, background=constants.WHITE,
+                                width=23, height=32,
                                 font=font_textbox)
         self.t_hexdump.grid(column=1, row=0, pady=10)
 
-        self.t_pc_char = T.Text(f_hexdump, width=8, height=32,
+        self.t_pc_char = T.Text(f_hexdump, background=constants.WHITE,
+                                width=8, height=32,
                                 font=font_textbox)
         self.t_pc_char.grid(column=2, row=0, padx=10, pady=10)
 
@@ -76,7 +82,8 @@ class ViewerApp(T.Frame):
         f_mz_dump.grid(column=2, row=1, sticky="ns", pady=5)
 
         self.c_mz_dump = T.Canvas(f_mz_dump, width=208, height=512,
-                                  background="#fff", highlightthickness=0)
+                                  background=constants.BLUE,
+                                  highlightthickness=0)
         self.c_mz_dump.grid(rowspan=15, padx=10, pady=13)
 
         rb_ascii = T.Radiobutton(f_mz_dump, text="ASCII",
@@ -109,7 +116,8 @@ class ViewerApp(T.Frame):
                       padx=10, pady=5)
 
         self.c_bmp = T.Canvas(f_bitmap, width=128, height=512,
-                              background="#fff", highlightthickness=0)
+                              background=constants.GREEN_BLUE,
+                              highlightthickness=0)
         self.c_bmp.grid(rowspan=15, padx=10, pady=13)
 
         l_bitmap_columns = T.Label(f_bitmap, text="Columns:")
