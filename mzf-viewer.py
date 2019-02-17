@@ -148,38 +148,55 @@ class ViewerApp(T.Frame):
 
         # Navigation buttons
 
+        self.img_char_left = T.PhotoImage(file="icons/charleft.png")
+        self.img_line_up = T.PhotoImage(file="icons/lineup.png")
+        self.img_page_up = T.PhotoImage(file="icons/pageup.png")
+        self.img_home = T.PhotoImage(file="icons/home.png")
+        self.img_end = T.PhotoImage(file="icons/end.png")
+        self.img_page_down = T.PhotoImage(file="icons/pagedown.png")
+        self.img_line_down = T.PhotoImage(file="icons/linedown.png")
+        self.img_char_right = T.PhotoImage(file="icons/charright.png")
+
         f_navigate = T.Frame(self, borderwidth=3, relief="groove")
         f_navigate.grid(column=1, columnspan=3, padx=10, pady=10)
 
         b_char_left = T.Button(f_navigate, text="Char\nLeft",
+                               image=self.img_char_left, compound="top",
                                command=lambda: self.move("Left"))
         b_char_left.grid()
 
         b_line_up = T.Button(f_navigate, text="Line\nUp",
+                             image=self.img_line_up, compound="top",
                              command=lambda: self.move("Up"))
         b_line_up.grid(column=1, row=0)
 
         b_page_up = T.Button(f_navigate, text="Page\nUp",
+                             image=self.img_page_up, compound="top",
                              command=lambda: self.move("Prior"))
         b_page_up.grid(column=2, row=0)
 
         b_home = T.Button(f_navigate, text="Home\n",
+                          image=self.img_home, compound="top",
                           command=lambda: self.move("Home"))
         b_home.grid(column=3, row=0)
 
         b_end = T.Button(f_navigate, text="End\n",
+                         image=self.img_end, compound="top",
                          command=lambda: self.move("End"))
         b_end.grid(column=4, row=0)
 
         b_page_down = T.Button(f_navigate, text="Page\nDown",
+                               image=self.img_page_down, compound="top",
                                command=lambda: self.move("Next"))
         b_page_down.grid(column=5, row=0)
 
         b_line_down = T.Button(f_navigate, text="Line\nDown",
+                               image=self.img_line_down, compound="top",
                                command=lambda: self.move("Down"))
         b_line_down.grid(column=6, row=0)
 
         b_char_right = T.Button(f_navigate, text="Char\nRight",
+                                image=self.img_char_right, compound="top",
                                 command=lambda: self.move("Right"))
         b_char_right.grid(column=7, row=0)
 
