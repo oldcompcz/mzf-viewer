@@ -183,10 +183,21 @@ class ViewerApp(T.Frame):
                                 command=lambda: self.move("Right"))
         b_char_right.grid(column=7, row=0)
 
+        self.master.bind("<Left>", lambda event: self.move(event.keysym))
+        self.master.bind("<Up>", lambda event: self.move(event.keysym))
+        self.master.bind("<Prior>", lambda event: self.move(event.keysym))
+        self.master.bind("<Home>", lambda event: self.move(event.keysym))
+        self.master.bind("<End>", lambda event: self.move(event.keysym))
+        self.master.bind("<Next>", lambda event: self.move(event.keysym))
+        self.master.bind("<Down>", lambda event: self.move(event.keysym))
+        self.master.bind("<Right>", lambda event: self.move(event.keysym))
+
         # Exit button
 
-        b_exit = T.Button(self, text="Exit", command=self.master.destroy)
+        b_exit = T.Button(self, text="Exit", command=self.close)
         b_exit.grid(column=4, row=2, sticky="es", padx=10, pady=10)
+
+        self.master.bind("<Alt-x>", self.close)
 
     def open_file(self, filename=None):
 
@@ -326,6 +337,10 @@ class ViewerApp(T.Frame):
                         self.draw_byte(self.c_bmp, i*16,
                                        2*j*block_height + 2*k, byte,
                                        self.bmp_flipped.get(), "graph_bitmap")
+
+    def close(self, *args):
+
+        self.master.destroy()
 
 
 def main():
