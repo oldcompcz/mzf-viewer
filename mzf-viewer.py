@@ -298,6 +298,9 @@ class ViewerApp(T.Frame):
         self.refresh_bmp()
 
     def refresh_mz(self):
+        """Redraw ascii chars on the MZ canvas, but not MZ addresses on this
+        canvas.
+        """
 
         self.c_mz_dump.delete("mz_char")
         contents = self.file_data[self.position:self.position + 256]
@@ -364,6 +367,10 @@ class ViewerApp(T.Frame):
                                        self.bmp_flipped.get(), "graph_bitmap")
 
     def close(self, *args):
+        """Close the application window. Called with one <tkinter.Event>
+        argument when using the Alt+X shortcut, or without this argument when
+        using the Exit button.
+        """
 
         self.master.destroy()
 

@@ -1,4 +1,7 @@
 def generate_cgrom():
+    """Generate a sequence of 8-byte chunks representing chars of the original
+    Sharp MZ font.
+    """
 
     with open("data/cg_rom.bin", 'rb') as f:
 
@@ -11,12 +14,18 @@ def generate_cgrom():
 
 
 def generate_asc_to_disp():
+    """Return a byte sequence serving as conversion table from ascii code
+    to display (video-RAM) code.
+    """
 
     with open("data/asc_to_disp.bin", 'rb') as f:
         return f.read()
 
 
 def generate_bitmaps():
+    """Generate a sequence of 16x2px (double sized 8x1px) bitmaps, in the
+    format required by the tkinter.BitmapImage contructor.
+    """
 
     for number in range(256):
         double_byte = 0
@@ -38,6 +47,8 @@ static unsigned char byte{n}_bits[] = {{
 
 
 def generate_flipped():
+    """Generate a sequence of bitwise mirrored 8-bit values.
+    """
 
     for n in range(256):
         bin_string_reversed = "{:08b}".format(n)[::-1]
