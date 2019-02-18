@@ -264,6 +264,14 @@ class ViewerApp(T.Frame):
                 else:
                     break
 
+                # different color for MZ header
+                if self.position + j*8 + i < 0x80:
+                    self.c_mz_dump.create_rectangle(16*(i + 5), 16*j,
+                                                    16*(i + 5) + 16,
+                                                    16*j + 16,
+                                                    fill=constants.GREY_BLUE,
+                                                    width=0, tag="header_bg")
+
                 line_hex += "{:02X}{}".format(byte, (" " if i < 7 else ""))
                 line_pc_char += (chr(byte) if 31 < byte < 127 else " ")
 
