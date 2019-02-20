@@ -56,7 +56,7 @@ class ViewerApp(T.Frame):
         self.var_filename.set("[no file]")
         self.open_dir = "./sample_mzf/"
         self.file_data = b""
-        self.position = 0
+        self.visible_data = b""
 
         # Standard hex dump frame
 
@@ -254,6 +254,7 @@ class ViewerApp(T.Frame):
 
             self.mz_from = int.from_bytes(self.file_data[20:22], "little")
             self.position = 0
+            self.visible_data = self.file_data[:256]
             self.refresh_all()
 
     def refresh_all(self):
@@ -268,15 +269,13 @@ class ViewerApp(T.Frame):
         self.c_mz_dump.delete("mz_adr")
         self.c_mz_dump.delete("header_bg")
 
-        contents = self.file_data[self.position:self.position + 256]
-
         for j in range(32):
             line_hex = ""
             line_pc_char = ""
 
             for i in range(8):
-                if contents[j*8 + i:]:
-                    byte = contents[j*8 + i]
+                if self.visible_data[j*8 + i:]:
+                    byte = self.visible_data[j*8 + i]
                 else:
                     break
 
@@ -327,12 +326,11 @@ class ViewerApp(T.Frame):
         """
 
         self.c_mz_dump.delete("mz_char")
-        contents = self.file_data[self.position:self.position + 256]
 
         for j in range(32):
             for i in range(8):
-                if contents[j*8 + i:]:
-                    byte = contents[j*8 + i]
+                if self.visible_data[j*8 + i:]:
+                    byte = self.visible_data[j*8 + i]
                 else:
                     break
 
@@ -356,6 +354,9 @@ class ViewerApp(T.Frame):
                 self.position = 0
             elif self.position >= len(self.file_data):
                 self.position = len(self.file_data) - 1
+
+            self.visible_data = self.file_data[self.position:
+                                               self.position + 256]
             self.refresh_all()
 
     def draw_byte(self, canvas, x, y, byte, flipped, tag):
