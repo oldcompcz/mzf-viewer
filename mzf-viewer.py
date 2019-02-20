@@ -63,18 +63,15 @@ class ViewerApp(T.Frame):
         f_hexdump = T.Frame(self, borderwidth=3, relief="groove")
         f_hexdump.grid(columnspan=2, sticky="ns", padx=10, pady=5)
 
-        font_textbox = font.Font(name="TkFixedFont", size=17, exists=True)
+        font_textbox = font.Font(name="TkFixedFont", exists=True)
 
         # search for a font size with line height exactly 16 px
-        while font_textbox.metrics()["linespace"] != 16:
-
-            size = font_textbox.config()["size"]
-
-            if size < -16:
-                font_textbox.config(size=9)
+        for size in range(17, -17, -1):
+            font_textbox.config(size=size)
+            if font_textbox.metrics()["linespace"] == 16:
                 break
-
-            font_textbox.config(size=size - 1)
+        else:
+            font_textbox.config(size=9)
 
         self.t_adr = T.Text(f_hexdump, background=constants.WHITE,
                             width=6, height=32, font=font_textbox)
