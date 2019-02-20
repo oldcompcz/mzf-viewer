@@ -14,6 +14,8 @@
 #                    s_   ...  Spinbox widget
 
 
+import sys
+import os
 import tkinter as T
 from tkinter import filedialog
 from tkinter import font
@@ -52,6 +54,7 @@ class ViewerApp(T.Frame):
                         padx=10, pady=10)
 
         self.var_filename.set("[no file]")
+        self.open_dir = "./sample_mzf/"
         self.file_data = b""
         self.position = 0
 
@@ -233,19 +236,26 @@ class ViewerApp(T.Frame):
 
         self.master.bind("<Alt-x>", self.close)
 
+        if sys.argv[1:]:
+            self.open_file(sys.argv[1])
+
     def open_file(self, filename=None):
 
         if not filename:
-            dialog = filedialog.Open(self)
+            dialog = filedialog.Open(self, initialdir=self.open_dir,
+                                     filetypes=(("MZF files", "*.mzf"),
+                                                ("MZ* files", "*.mz*"),
+                                                ("All files", "*")))
             filename = dialog.show()
 
-        if filename:
+        if filename and os.path.isfile(filename):
             self.var_filename.set(filename)
+            self.open_dir = os.path.split(os.path.abspath(filename))[0]
 
             with open(filename, "rb") as f:
-                self.file_data = f.read(0xffff)
+                self.file_data = f.read()
 
-            self.mz_from = self.file_data[20] + 256*self.file_data[21]
+            self.mz_from = int.from_bytes(self.file_data[20:22], "little")
             self.position = 0
             self.refresh_all()
 
