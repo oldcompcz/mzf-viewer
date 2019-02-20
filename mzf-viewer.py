@@ -53,11 +53,6 @@ class ViewerApp(T.Frame):
         entry_file.grid(column=1, row=0, columnspan=3, sticky="ew",
                         padx=10, pady=10)
 
-        self.var_filename.set("[no file]")
-        self.open_dir = "./sample_mzf/"
-        self.file_data = b""
-        self.visible_data = b""
-
         # Standard hex dump frame
 
         f_hexdump = T.Frame(self, borderwidth=3, relief="groove")
@@ -233,8 +228,16 @@ class ViewerApp(T.Frame):
 
         self.master.bind("<Alt-x>", self.close)
 
-        if sys.argv[1:]:
+        # if possible, open a file from a command line argument
+        if sys.argv[1:] and os.path.isfile(sys.argv[1]):
             self.open_file(sys.argv[1])
+        else:
+            self.var_filename.set("[no file]")
+            self.open_dir = "./sample_mzf/"
+            self.file_data = b""
+            self.visible_data = b""
+
+        self.open_file("sample_mzf/wooky.mzf")
 
     def open_file(self, filename=None):
 
@@ -245,7 +248,7 @@ class ViewerApp(T.Frame):
                                                 ("All files", "*")))
             filename = dialog.show()
 
-        if filename and os.path.isfile(filename):
+        if filename:
             self.var_filename.set(filename)
             self.open_dir = os.path.split(os.path.abspath(filename))[0]
 
