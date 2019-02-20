@@ -37,6 +37,9 @@ class ViewerApp(T.Frame):
                              for bitmap in utils.generate_bitmaps())
         self.flipped_values = tuple(utils.generate_flipped())
 
+        self.cursor16x16 = T.PhotoImage(file="img/orange16x16a32.png",
+                                        name="cursor16x16")
+
         # monospaced font for the text widgets
         # (search for a font size with line height exactly 16 px,
         # set to 9 if unsuccessful)
@@ -92,6 +95,11 @@ class ViewerApp(T.Frame):
 
         self.master.bind("<Alt-x>", self.close)
 
+        # mouse events
+        self.c_mz_dump.bind("<Enter>", self.mouse_highlight)
+        self.c_mz_dump.bind("<Motion>", self.mouse_highlight)
+        self.c_mz_dump.bind("<Leave>", self.mouse_highlight)
+
         # if possible, open a file from a command line argument
         if sys.argv[1:] and os.path.isfile(sys.argv[1]):
             self.open_file(sys.argv[1])
@@ -101,7 +109,16 @@ class ViewerApp(T.Frame):
             self.file_data = b""
             self.visible_data = b""
 
-        self.open_file("sample_mzf/wooky.mzf")
+    def mouse_highlight(self, event):
+
+        self.c_mz_dump.delete("mouse")
+
+        if str(event.type) in ("7", "Enter", "6", "Motion"):
+            x = event.x - event.x % 16
+            y = event.y - event.y % 16
+            if x > 79:
+                self.c_mz_dump.create_image(x, y, image="cursor16x16",
+                                            anchor="nw", tag="mouse")
 
     def draw_gui(self):
 
