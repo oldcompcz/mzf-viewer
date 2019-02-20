@@ -37,13 +37,75 @@ class ViewerApp(T.Frame):
                              for bitmap in utils.generate_bitmaps())
         self.flipped_values = tuple(utils.generate_flipped())
 
+        # monospaced font for the text widgets
+        # (search for a font size with line height exactly 16 px,
+        # set to 9 if unsuccessful)
+        self.font_textbox = font.Font(name="TkFixedFont", exists=True)
+
+        for size in range(17, -17, -1):
+            self.font_textbox.config(size=size)
+            if self.font_textbox.metrics()["linespace"] == 16:
+                break
+        else:
+            self.font_textbox.config(size=9)
+
+        # variables directly connected with widgets
         self.var_filename = T.StringVar()
+
         self.var_ascii = T.IntVar()
+        self.var_ascii.set(1)
+
         self.var_charset = T.IntVar()
+        self.var_charset.set(0)
+
         self.bmp_columns = T.StringVar()
+
         self.bmp_block_height = T.StringVar()
+        self.bmp_block_height.set("8")
+
         self.bmp_displayed = T.StringVar()
+
         self.bmp_flipped = T.IntVar()
+        self.bmp_flipped.set(0)
+
+        # icons for navigation buttons
+        self.img_char_left = T.PhotoImage(file="icons/charleft.png")
+        self.img_line_up = T.PhotoImage(file="icons/lineup.png")
+        self.img_page_up = T.PhotoImage(file="icons/pageup.png")
+        self.img_home = T.PhotoImage(file="icons/home.png")
+        self.img_end = T.PhotoImage(file="icons/end.png")
+        self.img_page_down = T.PhotoImage(file="icons/pagedown.png")
+        self.img_line_down = T.PhotoImage(file="icons/linedown.png")
+        self.img_char_right = T.PhotoImage(file="icons/charright.png")
+
+        self.draw_gui()
+
+        # keyboard events
+        self.master.bind("<Left>", lambda event: self.move(event.keysym))
+        self.master.bind("<Up>", lambda event: self.move(event.keysym))
+        self.master.bind("<Prior>", lambda event: self.move(event.keysym))
+        self.master.bind("<Home>", lambda event: self.move(event.keysym))
+        self.master.bind("<End>", lambda event: self.move(event.keysym))
+        self.master.bind("<Next>", lambda event: self.move(event.keysym))
+        self.master.bind("<Down>", lambda event: self.move(event.keysym))
+        self.master.bind("<Right>", lambda event: self.move(event.keysym))
+
+        self.master.bind("<Alt-x>", self.close)
+
+        # if possible, open a file from a command line argument
+        if sys.argv[1:] and os.path.isfile(sys.argv[1]):
+            self.open_file(sys.argv[1])
+        else:
+            self.var_filename.set("[no file]")
+            self.open_dir = "./sample_mzf/"
+            self.file_data = b""
+            self.visible_data = b""
+
+        self.open_file("sample_mzf/wooky.mzf")
+
+    def draw_gui(self):
+
+        # Topmost widgets
 
         b_open = T.Button(self, text="Open file...", command=self.open_file)
         b_open.grid(sticky="e", padx=10, pady=10)
@@ -58,26 +120,16 @@ class ViewerApp(T.Frame):
         f_hexdump = T.Frame(self, borderwidth=3, relief="groove")
         f_hexdump.grid(columnspan=2, sticky="ns", padx=10, pady=5)
 
-        font_textbox = font.Font(name="TkFixedFont", exists=True)
-
-        # search for a font size with line height exactly 16 px
-        for size in range(17, -17, -1):
-            font_textbox.config(size=size)
-            if font_textbox.metrics()["linespace"] == 16:
-                break
-        else:
-            font_textbox.config(size=9)
-
         self.t_adr = T.Text(f_hexdump, background=constants.WHITE,
-                            width=6, height=32, font=font_textbox)
+                            width=6, height=32, font=self.font_textbox)
         self.t_adr.grid(padx=10, pady=10)
 
         self.t_hexdump = T.Text(f_hexdump, background=constants.WHITE,
-                                width=23, height=32, font=font_textbox)
+                                width=23, height=32, font=self.font_textbox)
         self.t_hexdump.grid(column=1, row=0, pady=10)
 
         self.t_pc_char = T.Text(f_hexdump, background=constants.WHITE,
-                                width=8, height=32, font=font_textbox)
+                                width=8, height=32, font=self.font_textbox)
         self.t_pc_char.grid(column=2, row=0, padx=10, pady=10)
 
         # Sharp MZ dump frame
@@ -109,9 +161,6 @@ class ViewerApp(T.Frame):
                                     variable=self.var_charset, value=256,
                                     command=self.redraw_mz_chars)
         rb_charset2.grid(column=1, row=3, sticky="nw", padx=5)
-
-        self.var_ascii.set(1)
-        self.var_charset.set(0)
 
         # Bitmap frame
 
@@ -155,19 +204,7 @@ class ViewerApp(T.Frame):
                                    command=self.redraw_bitmap)
         cb_flipped.grid(column=1, row=3, columnspan=2, sticky="nw")
 
-        self.bmp_block_height.set("8")
-        self.bmp_flipped.set(0)
-
         # Navigation buttons
-
-        self.img_char_left = T.PhotoImage(file="icons/charleft.png")
-        self.img_line_up = T.PhotoImage(file="icons/lineup.png")
-        self.img_page_up = T.PhotoImage(file="icons/pageup.png")
-        self.img_home = T.PhotoImage(file="icons/home.png")
-        self.img_end = T.PhotoImage(file="icons/end.png")
-        self.img_page_down = T.PhotoImage(file="icons/pagedown.png")
-        self.img_line_down = T.PhotoImage(file="icons/linedown.png")
-        self.img_char_right = T.PhotoImage(file="icons/charright.png")
 
         f_navigate = T.Frame(self, borderwidth=3, relief="groove")
         f_navigate.grid(column=1, columnspan=3, padx=10, pady=10)
@@ -212,32 +249,10 @@ class ViewerApp(T.Frame):
                                 command=lambda: self.move("Right"))
         b_char_right.grid(column=7, row=0)
 
-        self.master.bind("<Left>", lambda event: self.move(event.keysym))
-        self.master.bind("<Up>", lambda event: self.move(event.keysym))
-        self.master.bind("<Prior>", lambda event: self.move(event.keysym))
-        self.master.bind("<Home>", lambda event: self.move(event.keysym))
-        self.master.bind("<End>", lambda event: self.move(event.keysym))
-        self.master.bind("<Next>", lambda event: self.move(event.keysym))
-        self.master.bind("<Down>", lambda event: self.move(event.keysym))
-        self.master.bind("<Right>", lambda event: self.move(event.keysym))
-
         # Exit button
 
         b_exit = T.Button(self, text="Exit", command=self.close)
         b_exit.grid(column=4, row=2, sticky="es", padx=10, pady=10)
-
-        self.master.bind("<Alt-x>", self.close)
-
-        # if possible, open a file from a command line argument
-        if sys.argv[1:] and os.path.isfile(sys.argv[1]):
-            self.open_file(sys.argv[1])
-        else:
-            self.var_filename.set("[no file]")
-            self.open_dir = "./sample_mzf/"
-            self.file_data = b""
-            self.visible_data = b""
-
-        self.open_file("sample_mzf/wooky.mzf")
 
     def open_file(self, filename=None):
 
@@ -262,7 +277,30 @@ class ViewerApp(T.Frame):
             self.redraw_mz_chars()
             self.redraw_bitmap()
 
+    def move(self, key):
+
+        jump = {"Left": -1, "Up": -8, "Prior": -256, "Home": -65536,
+                "End": 65536, "Next": 256, "Down": 8, "Right": 1}[key]
+
+        if self.file_data:
+            self.position += jump
+
+            if self.position < 0:
+                self.position = 0
+            elif self.position >= len(self.file_data):
+                self.position = len(self.file_data) - 1
+
+            self.visible_data = self.file_data[self.position:
+                                               self.position + 256]
+            self.redraw_main()
+            self.redraw_mz_chars()
+            self.redraw_bitmap()
+
     def redraw_main(self):
+        """Update the contents of the 't_adr', 't_hexdump', 't_pc_char' text
+        widgets, and redraw addresses and header highlight on the 'c_mz_dump'
+        canvas.
+        """
 
         self.t_adr["state"] = "normal"
         self.t_adr.delete("1.0", "end")
@@ -323,8 +361,7 @@ class ViewerApp(T.Frame):
         self.t_pc_char["state"] = "disabled"
 
     def redraw_mz_chars(self):
-        """Redraw ascii chars on the MZ canvas, but not MZ addresses on this
-        canvas.
+        """Redraw ascii chars (but not addresses) on the 'c_mz_dump' canvas.
         """
 
         self.c_mz_dump.delete("mz_char")
@@ -344,34 +381,9 @@ class ViewerApp(T.Frame):
                                               else byte)
                                    + self.var_charset.get()][i8], 0, "mz_char")
 
-    def move(self, key):
-
-        jump = {"Left": -1, "Up": -8, "Prior": -256, "Home": -65536,
-                "End": 65536, "Next": 256, "Down": 8, "Right": 1}[key]
-
-        if self.file_data:
-            self.position += jump
-
-            if self.position < 0:
-                self.position = 0
-            elif self.position >= len(self.file_data):
-                self.position = len(self.file_data) - 1
-
-            self.visible_data = self.file_data[self.position:
-                                               self.position + 256]
-            self.redraw_main()
-            self.redraw_mz_chars()
-            self.redraw_bitmap()
-
-    def draw_byte(self, canvas, x, y, byte, flipped, tag):
-
-        if flipped:
-            byte = self.flipped_values[byte]
-
-        canvas.create_image((x, y), image=self.bitmaps[byte], anchor="nw",
-                            tag=tag)
-
     def redraw_bitmap(self):
+        """Redraw the contents of the 'c_bmp' bitmap canvas.
+        """
 
         if self.file_data:
             self.c_bmp.delete("graph_bitmap")
@@ -394,6 +406,16 @@ class ViewerApp(T.Frame):
                         self.draw_byte(self.c_bmp, i*16,
                                        2*j*block_height + 2*k, byte,
                                        self.bmp_flipped.get(), "graph_bitmap")
+
+    def draw_byte(self, canvas, x, y, byte, flipped, tag):
+        """Draw a single 8x1 bitmap.
+        """
+
+        if flipped:
+            byte = self.flipped_values[byte]
+
+        canvas.create_image(x, y, image=self.bitmaps[byte], anchor="nw",
+                            tag=tag)
 
     def close(self, *args):
         """Close the application window. Called with one <tkinter.Event>
