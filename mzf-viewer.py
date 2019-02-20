@@ -97,22 +97,22 @@ class ViewerApp(T.Frame):
 
         rb_ascii = T.Radiobutton(f_mz_dump, text="ASCII",
                                  variable=self.var_ascii, value=1,
-                                 command=self.refresh_mz)
+                                 command=self.redraw_mz_chars)
         rb_ascii.grid(column=1, row=0, sticky="sw", padx=5)
 
         rb_display = T.Radiobutton(f_mz_dump, text="display",
                                    variable=self.var_ascii, value=0,
-                                   command=self.refresh_mz)
+                                   command=self.redraw_mz_chars)
         rb_display.grid(column=1, row=1, sticky="nw", padx=5)
 
         rb_charset1 = T.Radiobutton(f_mz_dump, text="charset 1",
                                     variable=self.var_charset, value=0,
-                                    command=self.refresh_mz)
+                                    command=self.redraw_mz_chars)
         rb_charset1.grid(column=1, row=2, sticky="sw", padx=5)
 
         rb_charset2 = T.Radiobutton(f_mz_dump, text="charset 2",
                                     variable=self.var_charset, value=256,
-                                    command=self.refresh_mz)
+                                    command=self.redraw_mz_chars)
         rb_charset2.grid(column=1, row=3, sticky="nw", padx=5)
 
         self.var_ascii.set(1)
@@ -135,7 +135,7 @@ class ViewerApp(T.Frame):
         s_bitmap_columns = T.Spinbox(f_bitmap, width=2, from_=1, to=8,
                                      increment=1,
                                      textvariable=self.bmp_columns,
-                                     command=self.refresh_bmp)
+                                     command=self.redraw_bitmap)
         s_bitmap_columns.grid(column=2, row=0, sticky="ws", padx=10)
 
         l_block_height = T.Label(f_bitmap, text="Block height:")
@@ -144,7 +144,7 @@ class ViewerApp(T.Frame):
         s_block_height = T.Spinbox(f_bitmap, width=2, from_=1, to=64,
                                    increment=1,
                                    textvariable=self.bmp_block_height,
-                                   command=self.refresh_bmp)
+                                   command=self.redraw_bitmap)
         s_block_height.grid(column=2, row=1, sticky="nw", padx=10)
 
         l_displayed = T.Label(f_bitmap, text="Bytes displayed:")
@@ -152,12 +152,12 @@ class ViewerApp(T.Frame):
 
         s_displayed = T.Spinbox(f_bitmap, width=4, from_=256, to=2048,
                                 increment=256, textvariable=self.bmp_displayed,
-                                command=self.refresh_bmp)
+                                command=self.redraw_bitmap)
         s_displayed.grid(column=2, row=2, sticky="nw", padx=10)
 
         cb_flipped = T.Checkbutton(f_bitmap, text="horizontal flip",
                                    variable=self.bmp_flipped,
-                                   command=self.refresh_bmp)
+                                   command=self.redraw_bitmap)
         cb_flipped.grid(column=1, row=3, columnspan=2, sticky="nw")
 
         self.bmp_block_height.set("8")
@@ -255,9 +255,11 @@ class ViewerApp(T.Frame):
             self.mz_from = int.from_bytes(self.file_data[20:22], "little")
             self.position = 0
             self.visible_data = self.file_data[:256]
-            self.refresh_all()
+            self.redraw_main()
+            self.redraw_mz_chars()
+            self.redraw_bitmap()
 
-    def refresh_all(self):
+    def redraw_main(self):
 
         self.t_adr["state"] = "normal"
         self.t_adr.delete("1.0", "end")
@@ -317,10 +319,7 @@ class ViewerApp(T.Frame):
         self.t_hexdump["state"] = "disabled"
         self.t_pc_char["state"] = "disabled"
 
-        self.refresh_mz()
-        self.refresh_bmp()
-
-    def refresh_mz(self):
+    def redraw_mz_chars(self):
         """Redraw ascii chars on the MZ canvas, but not MZ addresses on this
         canvas.
         """
@@ -357,7 +356,9 @@ class ViewerApp(T.Frame):
 
             self.visible_data = self.file_data[self.position:
                                                self.position + 256]
-            self.refresh_all()
+            self.redraw_main()
+            self.redraw_mz_chars()
+            self.redraw_bitmap()
 
     def draw_byte(self, canvas, x, y, byte, flipped, tag):
 
@@ -367,7 +368,7 @@ class ViewerApp(T.Frame):
         canvas.create_image((x, y), image=self.bitmaps[byte], anchor="nw",
                             tag=tag)
 
-    def refresh_bmp(self):
+    def redraw_bitmap(self):
 
         if self.file_data:
             self.c_bmp.delete("graph_bitmap")
