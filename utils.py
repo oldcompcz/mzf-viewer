@@ -48,23 +48,14 @@ def generate_bitmaps():
     format required by the tkinter.BitmapImage contructor.
     """
 
-    for number in range(256):
-        double_byte = 0
-
-        for bit, double_bit in zip((1, 2, 4, 8, 16, 32, 64, 128),
-                                   (3, 12, 48, 192, 768, 3072, 12288, 49152)):
-            if number & bit:
-                double_byte += double_bit
-
-        lsb_hex = hex(double_byte & 0xff)
-        msb_hex = hex(double_byte >> 8)
-
-        bitmap_code = """#define byte{n}_width 16
+    format_string = """#define byte{n}_width 16
 #define byte{n}_height 2
-static unsigned char byte{n}_bits[] = {{
-{lsb}, {msb}, {lsb}, {msb}}}""".format(n=number, lsb=lsb_hex, msb=msb_hex)
+static unsigned char byte{n}_bits[] = {{ {data} }}"""
 
-        yield bitmap_code
+    for i in range(256):
+        joined_hex = ",".join([hex(i) for i in zoomed(i)])
+
+        yield format_string.format(n=i, data=joined_hex)
 
 
 def generate_flipped():
