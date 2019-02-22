@@ -64,8 +64,8 @@ class ViewerApp(T.Frame):
         self.var_ascii = T.IntVar()
         self.var_ascii.set(1)
 
-        self.var_charset = T.IntVar()
-        self.var_charset.set(0)
+        self.alt_charset = T.BooleanVar()
+        self.alt_charset.set(False)
 
         self.bmp_columns = T.IntVar()
 
@@ -172,12 +172,12 @@ class ViewerApp(T.Frame):
         rb_display.grid(column=1, row=1, sticky="nw", padx=5)
 
         rb_charset1 = T.Radiobutton(f_mz_dump, text="charset 1",
-                                    variable=self.var_charset, value=0,
+                                    variable=self.alt_charset, value=False,
                                     command=self.redraw_mz_chars)
         rb_charset1.grid(column=1, row=2, sticky="sw", padx=5)
 
         rb_charset2 = T.Radiobutton(f_mz_dump, text="charset 2",
-                                    variable=self.var_charset, value=256,
+                                    variable=self.alt_charset, value=True,
                                     command=self.redraw_mz_chars)
         rb_charset2.grid(column=1, row=3, sticky="nw", padx=5)
 
@@ -385,7 +385,7 @@ class ViewerApp(T.Frame):
                     for i5 in range(5):
                         asc = ord(mz_adr[i5])
 
-                        # draw MZ char, regardless of var_ascii and var_charset
+                        # draw MZ char, regardless of var_ascii and alt_charset
                         self.c_mz_dump.create_image(16*i5, 16*j,
                                                     image=self.charset
                                                     [self.asc_to_disp[asc]],
@@ -413,10 +413,10 @@ class ViewerApp(T.Frame):
                 else:
                     break
 
-                # draw MZ char according to var_ascii and var_charset
+                # draw MZ char according to var_ascii and alt_charset
                 index = (self.asc_to_disp[byte]
                          if self.var_ascii.get() else byte)
-                if self.var_charset.get():
+                if self.alt_charset.get():
                     index += 256
                 self.c_mz_dump.create_image(16*(i + 5), 16*j,
                                             image=self.charset
