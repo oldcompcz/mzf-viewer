@@ -35,6 +35,10 @@ class ViewerApp(T.Frame):
         self.bitmaps = tuple(T.BitmapImage(data=bitmap,
                                            foreground=constants.WHITE)
                              for bitmap in utils.generate_bitmaps())
+        self.bitmaps_active = tuple(T.BitmapImage(data=bitmap,
+                                                  foreground="#ff8000",
+                                                  background="black")
+                                    for bitmap in utils.generate_bitmaps())
         self.flipped_values = tuple(utils.generate_flipped())
 
         self.cursor16x16 = T.PhotoImage(file="img/orange16x16a32.png",
@@ -431,8 +435,11 @@ class ViewerApp(T.Frame):
         if flipped:
             byte = self.flipped_values[byte]
 
-        canvas.create_image(x, y, image=self.bitmaps[byte], anchor="nw",
-                            tag=tag)
+        img_id = canvas.create_image(x, y, image=self.bitmaps[byte],
+                                     anchor="nw", tag=tag)
+
+        if canvas is self.c_bmp:
+            canvas.itemconfigure(img_id, activeimage=self.bitmaps_active[byte])
 
     def close(self, *args):
         """Close the application window. Called with one <tkinter.Event>
