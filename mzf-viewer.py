@@ -386,7 +386,7 @@ class ViewerApp(T.Frame):
                             self.draw_byte(self.c_mz_dump, 16*i5,
                                            16*j + 2*i8,
                                            self.cgrom[self.asc_to_disp[asc]][i8],
-                                           0, "mz_adr")
+                                           tag="mz_adr")
 
                 self.t_hexdump.insert("end", line_hex)
                 self.t_pc_char.insert("end", line_pc_char)
@@ -416,7 +416,8 @@ class ViewerApp(T.Frame):
                                    self.cgrom[(self.asc_to_disp[byte]
                                               if self.var_ascii.get()
                                               else byte)
-                                   + self.var_charset.get()][i8], 0, "mz_char")
+                                   + self.var_charset.get()][i8],
+                                   tag="mz_char")
 
     def redraw_bitmap(self):
         """Redraw the contents of the 'c_bmp' bitmap canvas.
@@ -442,9 +443,9 @@ class ViewerApp(T.Frame):
 
                         self.draw_byte(self.c_bmp, i*16,
                                        2*j*block_height + 2*k, byte,
-                                       self.bmp_flipped.get(), "graph_bitmap")
+                                       flipped=self.bmp_flipped.get())
 
-    def draw_byte(self, canvas, x, y, byte, flipped, tag):
+    def draw_byte(self, canvas, x, y, byte, tag="byte", flipped=False):
         """Draw a single 8x1 bitmap.
         """
 
