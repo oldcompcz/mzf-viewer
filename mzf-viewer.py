@@ -88,18 +88,24 @@ class ViewerApp(T.Frame):
         self.draw_gui()
 
         # keyboard events
-        self.master.bind("<Left>", lambda event: self.move(event.keysym))
-        self.master.bind("<Up>", lambda event: self.move(event.keysym))
-        self.master.bind("<Prior>", lambda event: self.move(event.keysym))
-        self.master.bind("<Home>", lambda event: self.move(event.keysym))
-        self.master.bind("<End>", lambda event: self.move(event.keysym))
-        self.master.bind("<Next>", lambda event: self.move(event.keysym))
-        self.master.bind("<Down>", lambda event: self.move(event.keysym))
-        self.master.bind("<Right>", lambda event: self.move(event.keysym))
+        self.master.bind("<Left>", self.move)
+        self.master.bind("<Up>", self.move)
+        self.master.bind("<Prior>", self.move)
+        self.master.bind("<Home>", self.move)
+        self.master.bind("<End>", self.move)
+        self.master.bind("<Next>", self.move)
+        self.master.bind("<Down>", self.move)
+        self.master.bind("<Right>", self.move)
 
         self.master.bind("<Alt-x>", self.close)
 
         # mouse events
+        self.t_adr.bind("<MouseWheel>", self.move)
+        self.t_hexdump.bind("<MouseWheel>", self.move)
+        self.t_pc_char.bind("<MouseWheel>", self.move)
+        self.c_mz_dump.bind("<MouseWheel>", self.move)
+        self.c_bmp.bind("<MouseWheel>", self.move)
+
         self.c_mz_dump.bind("<Enter>", self.mouse_highlight)
         self.c_mz_dump.bind("<Motion>", self.mouse_highlight)
         self.c_mz_dump.bind("<Leave>", self.mouse_highlight)
@@ -288,13 +294,23 @@ class ViewerApp(T.Frame):
             self.redraw_mz_chars()
             self.redraw_bitmap()
 
-    def move(self, key):
+    def move(self, arg):
+        jumps = {"Left": -1, "Right": 1, "Up": -8, "Down": 8,
+                 "Prior": -256, "Next": 256,
+                 "Home": -len(self.file_data), "End": len(self.file_data),
+                 "ScrollUp": -32, "ScrollDown": 32}
 
-        jump = {"Left": -1, "Up": -8, "Prior": -256, "Home": -65536,
-                "End": 65536, "Next": 256, "Down": 8, "Right": 1}[key]
+        # if 'arg' is not one of the strings above, 'arg' is an event
+        if arg not in jumps:
+
+            if str(arg.type) in ("2", "KeyPress"):
+                arg = arg.keysym
+
+            elif str(arg.type) in ("38", "MouseWheel"):
+                arg = "ScrollDown" if arg.delta < 0 else "ScrollUp"
 
         if self.file_data:
-            self.position += jump
+            self.position += jumps[arg]
 
             if self.position < 0:
                 self.position = 0
