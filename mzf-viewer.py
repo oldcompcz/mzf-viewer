@@ -61,15 +61,15 @@ class ViewerApp(T.Frame):
         self.var_charset = T.IntVar()
         self.var_charset.set(0)
 
-        self.bmp_columns = T.StringVar()
+        self.bmp_columns = T.IntVar()
 
-        self.bmp_block_height = T.StringVar()
+        self.bmp_block_height = T.IntVar()
         self.bmp_block_height.set("8")
 
-        self.bmp_displayed = T.StringVar()
+        self.bmp_displayed = T.IntVar()
 
-        self.bmp_flipped = T.IntVar()
-        self.bmp_flipped.set(0)
+        self.bmp_flipped = T.BooleanVar()
+        self.bmp_flipped.set(False)
 
         # icons for navigation buttons
         self.img_char_left = T.PhotoImage(file="icons/charleft.png")
@@ -109,16 +109,6 @@ class ViewerApp(T.Frame):
             self.file_data = b""
             self.visible_data = b""
 
-    def mouse_highlight(self, event):
-
-        self.c_mz_dump.delete("mouse")
-
-        if str(event.type) in ("7", "Enter", "6", "Motion"):
-            x = event.x - event.x % 16
-            y = event.y - event.y % 16
-            if x > 79:
-                self.c_mz_dump.create_image(x, y, image="cursor16x16",
-                                            anchor="nw", tag="mouse")
 
     def draw_gui(self):
 
@@ -313,6 +303,17 @@ class ViewerApp(T.Frame):
             self.redraw_mz_chars()
             self.redraw_bitmap()
 
+    def mouse_highlight(self, event):
+
+        self.c_mz_dump.delete("mouse")
+
+        if str(event.type) in ("7", "Enter", "6", "Motion"):
+            x = event.x - event.x % 16
+            y = event.y - event.y % 16
+            if x > 79:
+                self.c_mz_dump.create_image(x, y, image="cursor16x16",
+                                            anchor="nw", tag="mouse")
+
     def redraw_main(self):
         """Update the contents of the 't_adr', 't_hexdump', 't_pc_char' text
         widgets, and redraw addresses and header highlight on the 'c_mz_dump'
@@ -326,8 +327,7 @@ class ViewerApp(T.Frame):
         self.t_pc_char["state"] = "normal"
         self.t_pc_char.delete("1.0", "end")
 
-        self.c_mz_dump.delete("mz_adr")
-        self.c_mz_dump.delete("header_bg")
+        self.c_mz_dump.delete("all")
 
         for j in range(32):
             line_hex = ""
@@ -403,7 +403,7 @@ class ViewerApp(T.Frame):
         """
 
         if self.file_data:
-            self.c_bmp.delete("graph_bitmap")
+            self.c_bmp.delete("all")
             row_length = int(self.bmp_columns.get())
             block_height = int(self.bmp_block_height.get())
 
