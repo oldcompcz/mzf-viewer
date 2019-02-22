@@ -30,7 +30,9 @@ class ViewerApp(T.Frame):
         self.config(background=constants.MAIN_BG)
         self.pack()
 
-        self.cgrom = tuple(utils.generate_cgrom())
+        self.charset = tuple(T.BitmapImage(data=bitmap,
+                                           foreground=constants.WHITE)
+                             for bitmap in utils.generate_charset())
         self.asc_to_disp = utils.generate_asc_to_disp()
         self.bitmaps = tuple(T.BitmapImage(data=bitmap,
                                            foreground=constants.WHITE)
@@ -384,11 +386,10 @@ class ViewerApp(T.Frame):
                         asc = ord(mz_adr[i5])
 
                         # draw MZ char, regardless of var_ascii and var_charset
-                        for i8 in range(8):
-                            self.draw_byte(self.c_mz_dump, 16*i5,
-                                           16*j + 2*i8,
-                                           self.cgrom[self.asc_to_disp[asc]][i8],
-                                           tag="mz_adr")
+                        self.c_mz_dump.create_image(16*i5, 16*j,
+                                                    image=self.charset
+                                                    [self.asc_to_disp[asc]],
+                                                    anchor="nw")
 
                 self.t_hexdump.insert("end", line_hex)
                 self.t_pc_char.insert("end", line_pc_char)
@@ -413,13 +414,14 @@ class ViewerApp(T.Frame):
                     break
 
                 # draw MZ char according to var_ascii and var_charset
-                for i8 in range(8):
-                    self.draw_byte(self.c_mz_dump, 16*(i + 5), 16*j + 2*i8,
-                                   self.cgrom[(self.asc_to_disp[byte]
-                                              if self.var_ascii.get()
-                                              else byte)
-                                   + self.var_charset.get()][i8],
-                                   tag="mz_char")
+                index = (self.asc_to_disp[byte]
+                         if self.var_ascii.get() else byte)
+                if self.var_charset.get():
+                    index += 256
+                self.c_mz_dump.create_image(16*(i + 5), 16*j,
+                                            image=self.charset
+                                            [index],
+                                            anchor="nw", tag="mz_char")
 
     def redraw_bitmap(self):
         """Redraw the contents of the 'c_bmp' bitmap canvas.
