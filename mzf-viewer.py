@@ -310,6 +310,7 @@ class ViewerApp(T.Frame):
                 arg = "ScrollDown" if arg.delta < 0 else "ScrollUp"
 
         if self.file_data:
+            old_position = self.position
             self.position += jumps[arg]
 
             if self.position < 0:
@@ -317,11 +318,12 @@ class ViewerApp(T.Frame):
             elif self.position >= len(self.file_data):
                 self.position = len(self.file_data) - 1
 
-            self.visible_data = self.file_data[self.position:
-                                               self.position + 256]
-            self.redraw_main()
-            self.redraw_mz_chars()
-            self.redraw_bitmap()
+            if self.position != old_position:
+                self.visible_data = self.file_data[self.position:
+                                                   self.position + 256]
+                self.redraw_main()
+                self.redraw_mz_chars()
+                self.redraw_bitmap()
 
     def mouse_highlight(self, event):
 
