@@ -33,18 +33,21 @@ class ViewerApp(T.Frame):
         self.charset = tuple(T.BitmapImage(data=bitmap,
                                            foreground=constants.WHITE)
                              for bitmap in utils.generate_charset())
-        self.asc_to_disp = utils.generate_asc_to_disp()
+        self.charset_active = tuple(T.BitmapImage(data=bitmap,
+                                                  **constants.ACTIVE)
+                                    for bitmap in utils.generate_charset())
+
         self.bitmaps = tuple(T.BitmapImage(data=bitmap,
                                            foreground=constants.WHITE)
                              for bitmap in utils.generate_bitmaps())
         self.bitmaps_active = tuple(T.BitmapImage(data=bitmap,
-                                                  foreground="#ff8000",
-                                                  background="black")
+                                                  **constants.ACTIVE)
                                     for bitmap in utils.generate_bitmaps())
         self.flipped_values = tuple(utils.generate_flipped())
 
         self.cursor16x16 = T.PhotoImage(file="img/orange16x16a32.png",
                                         name="cursor16x16")
+        self.asc_to_disp = utils.generate_asc_to_disp()
 
         # monospaced font for the text widgets
         # (search for a font size with line height exactly 16 px,
@@ -419,8 +422,8 @@ class ViewerApp(T.Frame):
                 if self.alt_charset.get():
                     index += 256
                 self.c_mz_dump.create_image(16*(i + 5), 16*j,
-                                            image=self.charset
-                                            [index],
+                                            image=self.charset[index],
+                                            activeimage=self.charset_active[index],
                                             anchor="nw", tag="mz_char")
 
     def redraw_bitmap(self):
@@ -445,22 +448,13 @@ class ViewerApp(T.Frame):
                         else:
                             break
 
-                        self.draw_byte(self.c_bmp, i*16,
-                                       2*j*block_height + 2*k, byte,
-                                       flipped=self.bmp_flipped.get())
-
-    def draw_byte(self, canvas, x, y, byte, tag="byte", flipped=False):
-        """Draw a single 8x1 bitmap.
-        """
-
-        if flipped:
-            byte = self.flipped_values[byte]
-
-        img_id = canvas.create_image(x, y, image=self.bitmaps[byte],
-                                     anchor="nw", tag=tag)
-
-        if canvas is self.c_bmp:
-            canvas.itemconfigure(img_id, activeimage=self.bitmaps_active[byte])
+                        # draw a single 8x1 bitmap
+                        if self.bmp_flipped.get():
+                            byte = self.flipped_values[byte]
+                        self.c_bmp.create_image(i*16, 2*j*block_height + 2*k,
+                                                image=self.bitmaps[byte],
+                                                activeimage=self.bitmaps_active[byte],
+                                                anchor="nw")
 
     def close(self, *args):
         """Close the application window. Called with one <tkinter.Event>
