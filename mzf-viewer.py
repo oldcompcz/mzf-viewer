@@ -44,9 +44,6 @@ class ViewerApp(T.Frame):
                                                   **constants.ACTIVE)
                                     for bitmap in utils.generate_bitmaps())
         self.flipped_values = tuple(utils.generate_flipped())
-
-        self.cursor16x16 = T.PhotoImage(file="img/orange16x16a32.png",
-                                        name="cursor16x16")
         self.asc_to_disp = utils.generate_asc_to_disp()
 
         # monospaced font for the text widgets
@@ -110,10 +107,6 @@ class ViewerApp(T.Frame):
         self.t_pc_char.bind("<MouseWheel>", self.move)
         self.c_mz_dump.bind("<MouseWheel>", self.move)
         self.c_bmp.bind("<MouseWheel>", self.move)
-
-        self.c_mz_dump.bind("<Enter>", self.mouse_highlight)
-        self.c_mz_dump.bind("<Motion>", self.mouse_highlight)
-        self.c_mz_dump.bind("<Leave>", self.mouse_highlight)
 
         # if possible, open a file from a command line argument
         if sys.argv[1:] and os.path.isfile(sys.argv[1]):
@@ -329,17 +322,6 @@ class ViewerApp(T.Frame):
                 self.redraw_main()
                 self.redraw_mz_chars()
                 self.redraw_bitmap()
-
-    def mouse_highlight(self, event):
-
-        self.c_mz_dump.delete("mouse")
-
-        if str(event.type) in ("7", "Enter", "6", "Motion"):
-            x = event.x - event.x % 16
-            y = event.y - event.y % 16
-            if x > 79:
-                self.c_mz_dump.create_image(x, y, image="cursor16x16",
-                                            anchor="nw", tag="mouse")
 
     def redraw_main(self):
         """Update the contents of the 't_adr', 't_hexdump', 't_pc_char' text
