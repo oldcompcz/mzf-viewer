@@ -115,6 +115,7 @@ class ViewerApp(T.Frame):
             self.var_filename.set("[no file]")
             self.open_dir = "./sample_mzf/"
             self.file_data = b""
+            self.position = 0
             self.visible_data = b""
 
 
@@ -125,9 +126,8 @@ class ViewerApp(T.Frame):
         b_open = T.Button(self, text="Open file...", command=self.open_file)
         b_open.grid(sticky="e", padx=10, pady=10)
 
-        entry_file = T.Entry(self, textvariable=self.var_filename,
-                             state="readonly")
-        entry_file.grid(column=1, row=0, columnspan=3, sticky="ew",
+        l_filename = T.Label(self, textvariable=self.var_filename, anchor="w")
+        l_filename.grid(column=1, row=0, columnspan=3, sticky="ew",
                         padx=10, pady=10)
 
         # Standard hex dump frame
@@ -393,50 +393,52 @@ class ViewerApp(T.Frame):
 
         for j in range(32):
             for i in range(8):
-                if self.visible_data[j*8 + i:]:
-                    byte = self.visible_data[j*8 + i]
+                index = j*8 + i
+                if self.visible_data[index:]:
+                    byte = self.visible_data[index]
                 else:
                     break
 
                 # draw MZ char according to var_ascii and alt_charset
-                index = (self.asc_to_disp[byte]
-                         if self.var_ascii.get() else byte)
+                byte = (self.asc_to_disp[byte]
+                        if self.var_ascii.get() else byte)
                 if self.alt_charset.get():
-                    index += 256
+                    byte += 256
                 self.c_mz_dump.create_image(16*(i + 5), 16*j,
-                                            image=self.charset[index],
-                                            activeimage=self.charset_active[index],
+                                            image=self.charset[byte],
+                                            activeimage=self.charset_active[byte],
                                             anchor="nw", tag="mz_char")
 
     def redraw_bitmap(self):
         """Redraw the contents of the 'c_bmp' bitmap canvas.
         """
 
-        if self.file_data:
-            self.c_bmp.delete("all")
-            row_length = int(self.bmp_columns.get())
-            block_height = int(self.bmp_block_height.get())
+        self.c_bmp.delete("all")
+        row_length = int(self.bmp_columns.get())
+        block_height = int(self.bmp_block_height.get())
 
-            for j in range(int(self.bmp_displayed.get())
-                           // (row_length * block_height)):
+        for j in range(int(self.bmp_displayed.get())
+                       // (row_length * block_height)):
 
-                for i in range(row_length):
+            for i in range(row_length):
 
-                    for k in range(block_height):
-                        index = j*row_length*block_height + i*block_height + k
+                for k in range(block_height):
+                    index = j*row_length*block_height + i*block_height + k
 
-                        if self.file_data[self.position:][index:]:
-                            byte = self.file_data[self.position:][index]
-                        else:
-                            break
+                    if self.file_data[self.position:][index:]:
+                        # 'visible_data' not used here, as there can be
+                        # much more data displayed on this canvas
+                        byte = self.file_data[self.position:][index]
+                    else:
+                        break
 
-                        # draw a single 8x1 bitmap
-                        if self.bmp_flipped.get():
-                            byte = self.flipped_values[byte]
-                        self.c_bmp.create_image(i*16, 2*j*block_height + 2*k,
-                                                image=self.bitmaps[byte],
-                                                activeimage=self.bitmaps_active[byte],
-                                                anchor="nw")
+                    # draw a single 8x1 bitmap
+                    if self.bmp_flipped.get():
+                        byte = self.flipped_values[byte]
+                    self.c_bmp.create_image(i*16, 2*j*block_height + 2*k,
+                                            image=self.bitmaps[byte],
+                                            activeimage=self.bitmaps_active[byte],
+                                            anchor="nw")
 
     def close(self, *args):
         """Close the application window. Called with one <tkinter.Event>
