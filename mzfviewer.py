@@ -118,6 +118,7 @@ class ViewerApp(T.Frame):
             self.position = 0
             self.visible_data = b""
 
+        self.open_file("sample_mzf/renegade.mzf")
 
     def draw_gui(self):
 
@@ -339,27 +340,32 @@ class ViewerApp(T.Frame):
         self.c_mz_dump.delete("all")
 
         for j in range(32):
-            line_hex = ""
-            line_pc_char = ""
+            line_empty = True
 
             for i in range(8):
-                if self.visible_data[j*8 + i:]:
-                    byte = self.visible_data[j*8 + i]
+                index = j*8 + i
+                if self.visible_data[index:]:
+                    byte = self.visible_data[index]
+                    line_empty = False
                 else:
                     break
 
                 # different color for MZ header
-                if self.position + j*8 + i < 0x80:
+                if self.position + index < 0x80:
                     self.c_mz_dump.create_rectangle(16*(i + 5), 16*j,
                                                     16*(i + 5) + 16,
                                                     16*j + 16,
                                                     fill=constants.GREY_BLUE,
-                                                    width=0, tag="header_bg")
+                                                    width=0)
 
-                line_hex += "{:02X}{}".format(byte, (" " if i < 7 else ""))
-                line_pc_char += (chr(byte) if 31 < byte < 127 else " ")
+                self.t_hexdump.insert("end", "{:02X}".format(byte))
+                if i < 7:
+                    self.t_hexdump.insert("end", " ")
 
-            if line_hex:
+                self.t_pc_char.insert("end",
+                                      chr(byte) if 31 < byte < 127 else " ")
+
+            if not line_empty:
                 line_adr = self.position + j*8
                 self.t_adr.insert("end", "{:#06x}".format(line_adr))
 
@@ -375,9 +381,6 @@ class ViewerApp(T.Frame):
                                                     image=self.charset
                                                     [self.asc_to_disp[asc]],
                                                     anchor="nw")
-
-                self.t_hexdump.insert("end", line_hex)
-                self.t_pc_char.insert("end", line_pc_char)
             else:
                 break
 
@@ -389,7 +392,7 @@ class ViewerApp(T.Frame):
         """Redraw ascii chars (but not addresses) on the 'c_mz_dump' canvas.
         """
 
-        self.c_mz_dump.delete("mz_char")
+        self.c_mz_dump.delete("chr")
 
         for j in range(32):
             for i in range(8):
@@ -404,10 +407,40 @@ class ViewerApp(T.Frame):
                         if self.var_ascii.get() else byte)
                 if self.alt_charset.get():
                     byte += 256
+                tag = "item{}".format(index)
                 self.c_mz_dump.create_image(16*(i + 5), 16*j,
                                             image=self.charset[byte],
                                             activeimage=self.charset_active[byte],
-                                            anchor="nw", tag="mz_char")
+                                            anchor="nw",
+                                            tags="{} chr".format(tag))
+                self.c_mz_dump.tag_bind(tag, "<Enter>", self.mouse_enter)
+                self.c_mz_dump.tag_bind(tag, "<Leave>", self.mouse_leave)
+
+    def mouse_enter(self, event):
+        current_tags = event.widget.itemconfigure("current", "tags")[4]
+        index = int(current_tags.strip(constants.NON_DIGITS))
+
+        self.backup_char = self.c_mz_dump.itemconfigure("item{}".format(index),
+                                                        "image")[4]
+        active_char = self.c_mz_dump.itemconfigure("item{}".format(index),
+                                                   "activeimage")[4]
+        self.c_mz_dump.itemconfigure("item{}".format(index),
+                                     image=active_char)
+
+        self.backup_bmp = self.c_bmp.itemconfigure("item{}".format(index),
+                                                   "image")[4]
+        active_bmp = self.c_bmp.itemconfigure("item{}".format(index),
+                                              "activeimage")[4]
+        self.c_bmp.itemconfigure("item{}".format(index),
+                                 image=active_bmp)
+
+        self.backup_index = index
+
+    def mouse_leave(self, event):
+        self.c_mz_dump.itemconfigure("item{}".format(self.backup_index),
+                                     image=self.backup_char)
+        self.c_bmp.itemconfigure("item{}".format(self.backup_index),
+                                 image=self.backup_bmp)
 
     def redraw_bitmap(self):
         """Redraw the contents of the 'c_bmp' bitmap canvas.
@@ -435,10 +468,13 @@ class ViewerApp(T.Frame):
                     # draw a single 8x1 bitmap
                     if self.bmp_flipped.get():
                         byte = self.flipped_values[byte]
+                    tag = "item{}".format(index)
                     self.c_bmp.create_image(i*16, 2*j*block_height + 2*k,
                                             image=self.bitmaps[byte],
                                             activeimage=self.bitmaps_active[byte],
-                                            anchor="nw")
+                                            anchor="nw", tag=tag)
+                    self.c_bmp.tag_bind(tag, "<Enter>", self.mouse_enter)
+                    self.c_bmp.tag_bind(tag, "<Leave>", self.mouse_leave)
 
     def close(self, *args):
         """Close the application window. Called with one <tkinter.Event>

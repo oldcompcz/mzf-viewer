@@ -9,3 +9,8 @@ GREY_BLUE = "#285870"
 GREEN_BLUE = "#287070"
 
 ACTIVE = {"foreground": "#ff8000", "background": "#000000"}
+
+
+# Other
+
+NON_DIGITS = "_ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
