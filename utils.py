@@ -13,25 +13,24 @@ def generate_cgrom():
                 break
 
 
-def generate_charset():
-    """Generate the original Sharp MZ font as a sequence of 16x16px (double
-    sized 8x8px) bitmaps, in the format required by the tkinter.BitmapImage
-    contructor.
+def generate_charset(scale):
+    """Generate the original Sharp MZ font as a sequence of 16x16px or 24x24px
+    bitmaps, in the format required by the tkinter.BitmapImage contructor.
     """
 
-    format_string = """#define byte{n}_width 16
-#define byte{n}_height 16
+    format_string = """#define byte{n}_width {w}
+#define byte{n}_height {w}
 static unsigned char byte{n}_bits[] = {{ {data} }}"""
 
     for i, chunk in enumerate(generate_cgrom()):
         hex_strings = []
 
         for byte in chunk:
-            hex_strings.extend([hex(i) for i in zoomed(byte)])
+            hex_strings.extend([hex(i) for i in zoomed(byte, scale)])
 
         joined_hex = ",".join(hex_strings)
 
-        yield format_string.format(n=i, data=joined_hex)
+        yield format_string.format(n=i, w=8*scale, data=joined_hex)
 
 
 def generate_asc_to_disp():
@@ -43,19 +42,19 @@ def generate_asc_to_disp():
         return f.read()
 
 
-def generate_bitmaps():
-    """Generate a sequence of 16x2px (double sized 8x1px) bitmaps, in the
-    format required by the tkinter.BitmapImage contructor.
+def generate_bitmaps(scale):
+    """Generate a sequence of 16x2px or 24x3px bitmaps, in the format required
+    by the tkinter.BitmapImage contructor.
     """
 
-    format_string = """#define byte{n}_width 16
-#define byte{n}_height 2
+    format_string = """#define byte{n}_width {w}
+#define byte{n}_height {h}
 static unsigned char byte{n}_bits[] = {{ {data} }}"""
 
     for i in range(256):
-        joined_hex = ",".join([hex(i) for i in zoomed(i)])
+        joined_hex = ",".join([hex(i) for i in zoomed(i, scale)])
 
-        yield format_string.format(n=i, data=joined_hex)
+        yield format_string.format(n=i, w=8*scale, h=scale, data=joined_hex)
 
 
 def generate_flipped():
@@ -67,18 +66,17 @@ def generate_flipped():
         yield int(bin_string_reversed, 2)
 
 
-def zoomed(byte, little_endian=True):
-    """Return a list of four values that represent a "bitwise zoom" of 'byte'.
+def zoomed(byte, scale):
+    """Return a sequence of bytes that represent a "bitwise zoom" of 'byte'.
     """
 
-    double_byte = sum(double_bit
-                      for bit, double_bit in zip((1, 2, 4, 8,
-                                                  16, 32, 64, 128),
-                                                 (3, 12, 48, 192,
-                                                 768, 3072, 12288, 49152))
-                      if byte & bit)
+    zoomed_bits = {2: (3, 12, 48, 192, 768, 3072, 12288, 49152),
+                   3: (7, 56, 448, 3584,
+                       28672, 229376, 1835008, 14680064)}[scale]
 
-    if little_endian:
-        return [double_byte & 0xff, double_byte >> 8] * 2
-    else:
-        return [double_byte >> 8, double_byte & 0xff] * 2
+    result = sum(zoomed_bit
+                 for bit, zoomed_bit in zip((1, 2, 4, 8, 16, 32, 64, 128),
+                                            zoomed_bits)
+                 if byte & bit)
+
+    return result.to_bytes(scale, "little") * scale
