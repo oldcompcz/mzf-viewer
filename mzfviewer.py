@@ -30,34 +30,37 @@ class ViewerApp(T.Frame):
         self.config(background=constants.MAIN_BG)
         self.pack()
 
+        self.scale = 2
         self.charset = tuple(T.BitmapImage(data=bitmap,
                                            foreground=constants.WHITE)
-                             for bitmap in utils.generate_charset())
+                             for bitmap in utils.generate_charset(self.scale))
         self.charset_active = tuple(T.BitmapImage(data=bitmap,
                                                   **constants.ACTIVE)
-                                    for bitmap in utils.generate_charset())
+                                    for bitmap in utils.generate_charset(
+                                                        self.scale))
 
         self.bitmaps = tuple(T.BitmapImage(data=bitmap,
                                            foreground=constants.WHITE)
-                             for bitmap in utils.generate_bitmaps())
+                             for bitmap in utils.generate_bitmaps(self.scale))
         self.bitmaps_active = tuple(T.BitmapImage(data=bitmap,
                                                   **constants.ACTIVE)
-                                    for bitmap in utils.generate_bitmaps())
+                                    for bitmap in utils.generate_bitmaps(
+                                                        self.scale))
         self.flipped_values = tuple(utils.generate_flipped())
         self.asc_to_disp = utils.generate_asc_to_disp()
         self.text_tags = ["dummy"]
 
         # monospaced font for the text widgets
-        # (search for a font size with line height exactly 16 px,
-        # set to 9 if unsuccessful)
+        # (search for a font size with line height exactly scale*8 px,
+        # set to scale*5 if unsuccessful)
         self.font_textbox = font.Font(name="TkFixedFont", exists=True)
 
-        for size in range(17, -17, -1):
+        for size in range(self.scale * 9, -self.scale * 9, -1):
             self.font_textbox.config(size=size)
-            if self.font_textbox.metrics()["linespace"] == 16:
+            if self.font_textbox.metrics()["linespace"] == self.scale * 8:
                 break
         else:
-            self.font_textbox.config(size=9)
+            self.font_textbox.config(size=self.scale * 5)
 
         # variables directly connected with widgets
         self.var_filename = T.StringVar()
@@ -152,7 +155,8 @@ class ViewerApp(T.Frame):
         f_mz_dump = T.Frame(self, borderwidth=3, relief="groove")
         f_mz_dump.grid(column=2, row=1, sticky="ns", pady=5)
 
-        self.c_mz_dump = T.Canvas(f_mz_dump, width=208, height=512,
+        self.c_mz_dump = T.Canvas(f_mz_dump, width=self.scale * 13 * 8,
+                                  height=self.scale * 32 * 8,
                                   background=constants.BLUE,
                                   highlightthickness=0)
         self.c_mz_dump.grid(rowspan=15, padx=10, pady=13)
@@ -183,7 +187,8 @@ class ViewerApp(T.Frame):
         f_bitmap.grid(column=3, row=1, columnspan=2, sticky="ns",
                       padx=10, pady=5)
 
-        self.c_bmp = T.Canvas(f_bitmap, width=128, height=512,
+        self.c_bmp = T.Canvas(f_bitmap, width=self.scale * 8 * 8,
+                              height=self.scale * 32 * 8,
                               background=constants.GREEN_BLUE,
                               highlightthickness=0)
         self.c_bmp.grid(rowspan=15, padx=10, pady=13)
@@ -328,6 +333,7 @@ class ViewerApp(T.Frame):
         widgets, and redraw addresses and header highlight on the 'c_mz_dump'
         canvas.
         """
+        q = 8 * self.scale
 
         self.t_adr["state"] = "normal"
         self.t_adr.delete("1.0", "end")
@@ -353,9 +359,8 @@ class ViewerApp(T.Frame):
 
                 # different color for MZ header
                 if self.position + index < 0x80:
-                    self.c_mz_dump.create_rectangle(16*(i + 5), 16*j,
-                                                    16*(i + 5) + 16,
-                                                    16*j + 16,
+                    self.c_mz_dump.create_rectangle(q*(i + 5), q*j,
+                                                    q*(i + 6), q*(j + 1),
                                                     fill=constants.GREY_BLUE,
                                                     width=0)
 
@@ -386,7 +391,7 @@ class ViewerApp(T.Frame):
                         asc = ord(mz_adr[i5])
 
                         # draw MZ char, regardless of var_ascii and alt_charset
-                        self.c_mz_dump.create_image(16*i5, 16*j,
+                        self.c_mz_dump.create_image(q * i5, q * j,
                                                     image=self.charset
                                                     [self.asc_to_disp[asc]],
                                                     anchor="nw")
@@ -400,6 +405,7 @@ class ViewerApp(T.Frame):
     def redraw_mz_chars(self):
         """Redraw ascii chars (but not addresses) on the 'c_mz_dump' canvas.
         """
+        q = 8 * self.scale
 
         self.c_mz_dump.delete("chr")
 
@@ -417,7 +423,7 @@ class ViewerApp(T.Frame):
                 if self.alt_charset.get():
                     byte += 256
                 tag = "item{}".format(index)
-                self.c_mz_dump.create_image(16*(i + 5), 16*j,
+                self.c_mz_dump.create_image(q*(i + 5), q*j,
                                             image=self.charset[byte],
                                             activeimage=self.charset_active[byte],
                                             anchor="nw",
@@ -427,8 +433,10 @@ class ViewerApp(T.Frame):
 
     def mouse_enter(self, event):
         try:
+            # event caught by Canvas widget
             current_tags = event.widget.itemconfigure("current", "tags")[4]
         except AttributeError:
+            # event caught by Text widget
             current_tags = "".join(event.widget.tag_names("current"))
 
         index = int(current_tags.strip(constants.NON_DIGITS))
@@ -490,7 +498,8 @@ class ViewerApp(T.Frame):
                     if self.bmp_flipped.get():
                         byte = self.flipped_values[byte]
                     tag = "item{}".format(index)
-                    self.c_bmp.create_image(i*16, 2*j*block_height + 2*k,
+                    self.c_bmp.create_image(i * 8 * self.scale,
+                                            self.scale*(j*block_height + k),
                                             image=self.bitmaps[byte],
                                             activeimage=self.bitmaps_active[byte],
                                             anchor="nw", tag=tag)
