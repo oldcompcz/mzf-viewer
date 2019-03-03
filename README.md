@@ -6,4 +6,3 @@ The tool is primarily aimed at digging out sprites and other graphics from Sharp
 To do:
 - make spinboxes "Columns" and "Block height" editable from keyboard, including confirming by Enter
 - change binary data files to Base64 text files
-- when a byte is hovered by mouse cursor in one of the "content widgets" (i.e. hex dump text, ascii char text, mz canvas, bitmap canvas), highlight the corresponding byte in the other three widgets as well

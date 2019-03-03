@@ -440,26 +440,28 @@ class ViewerApp(T.Frame):
             current_tags = "".join(event.widget.tag_names("current"))
 
         index = int(current_tags.strip(constants.NON_DIGITS))
-        tag = "item{}".format(index)
 
-        self.t_hexdump.tag_configure(tag, background=constants.ORANGE)
-        self.t_pc_char.tag_configure(tag, background=constants.ORANGE)
+        if index < 256:
+            tag = "item{}".format(index)
 
-        self.previous_char = self.c_mz_dump.itemconfigure(tag,
-                                                          "image")[4]
-        active_char = self.c_mz_dump.itemconfigure(tag,
-                                                   "activeimage")[4]
-        self.c_mz_dump.itemconfigure(tag,
-                                     image=active_char)
+            self.t_hexdump.tag_configure(tag, background=constants.ORANGE)
+            self.t_pc_char.tag_configure(tag, background=constants.ORANGE)
 
-        self.previous_bmp = self.c_bmp.itemconfigure(tag,
-                                                     "image")[4]
-        active_bmp = self.c_bmp.itemconfigure(tag,
-                                              "activeimage")[4]
-        self.c_bmp.itemconfigure(tag,
-                                 image=active_bmp)
+            self.previous_char = self.c_mz_dump.itemconfigure(tag,
+                                                              "image")[4]
+            active_char = self.c_mz_dump.itemconfigure(tag,
+                                                       "activeimage")[4]
+            self.c_mz_dump.itemconfigure(tag,
+                                         image=active_char)
 
-        self.previous_index = index
+            self.previous_bmp = self.c_bmp.itemconfigure(tag,
+                                                         "image")[4]
+            active_bmp = self.c_bmp.itemconfigure(tag,
+                                                  "activeimage")[4]
+            self.c_bmp.itemconfigure(tag,
+                                     image=active_bmp)
+
+            self.previous_index = index
 
     def mouse_leave(self, event):
         tag = "item{}".format(self.previous_index)
