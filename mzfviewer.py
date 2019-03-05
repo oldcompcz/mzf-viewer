@@ -387,11 +387,9 @@ class ViewerApp(T.Frame):
                 if line_adr >= 0x80:
                     mz_adr = "{:04X}:".format(line_adr + self.mz_from - 128)
 
-                    for i5 in range(5):
-                        asc = ord(mz_adr[i5])
-
+                    for x, asc in enumerate(bytes(mz_adr, "ascii")):
                         # draw MZ char, regardless of var_ascii and alt_charset
-                        self.c_mz_dump.create_image(q * i5, q * j,
+                        self.c_mz_dump.create_image(q * x, q * j,
                                                     image=self.charset
                                                     [self.asc_to_disp[asc]],
                                                     anchor="nw")
@@ -409,27 +407,25 @@ class ViewerApp(T.Frame):
 
         self.c_mz_dump.delete("chr")
 
-        for j in range(32):
-            for i in range(8):
-                index = j*8 + i
-                if self.visible_data[index:]:
-                    byte = self.visible_data[index]
-                else:
-                    break
+        for index in range(256):
+            if self.visible_data[index:]:
+                byte = self.visible_data[index]
+            else:
+                break
 
-                # draw MZ char according to var_ascii and alt_charset
-                byte = (self.asc_to_disp[byte]
-                        if self.var_ascii.get() else byte)
-                if self.alt_charset.get():
-                    byte += 256
-                tag = "item{}".format(index)
-                self.c_mz_dump.create_image(q*(i + 5), q*j,
-                                            image=self.charset[byte],
-                                            activeimage=self.charset_active[byte],
-                                            anchor="nw",
-                                            tags="{} chr".format(tag))
-                self.c_mz_dump.tag_bind(tag, "<Enter>", self.mouse_enter)
-                self.c_mz_dump.tag_bind(tag, "<Leave>", self.mouse_leave)
+            # draw MZ char according to var_ascii and alt_charset
+            byte = (self.asc_to_disp[byte]
+                    if self.var_ascii.get() else byte)
+            if self.alt_charset.get():
+                byte += 256
+            tag = "item{}".format(index)
+            self.c_mz_dump.create_image(q * (index % 8 + 5), q * (index // 8),
+                                        image=self.charset[byte],
+                                        activeimage=self.charset_active[byte],
+                                        anchor="nw",
+                                        tags="{} chr".format(tag))
+            self.c_mz_dump.tag_bind(tag, "<Enter>", self.mouse_enter)
+            self.c_mz_dump.tag_bind(tag, "<Leave>", self.mouse_leave)
 
     def mouse_enter(self, event):
         try:

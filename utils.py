@@ -15,7 +15,7 @@ def generate_cgrom():
 
 def generate_charset(scale):
     """Generate the original Sharp MZ font as a sequence of 16x16px or 24x24px
-    bitmaps, in the format required by the tkinter.BitmapImage contructor.
+    bitmaps, in the format required by the tkinter.BitmapImage constructor.
     """
 
     format_string = """#define byte{n}_width {w}
