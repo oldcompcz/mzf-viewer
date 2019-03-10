@@ -5,4 +5,3 @@ The tool is primarily aimed at digging out sprites and other graphics from Sharp
 
 To do:
 - make spinboxes "Columns" and "Block height" editable from keyboard, including confirming by Enter
-- change binary data files to Base64 text files

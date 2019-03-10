@@ -1,16 +1,16 @@
+import base64
+import constants
+
+
 def generate_cgrom():
     """Generate a sequence of 8-byte chunks representing chars of the original
     Sharp MZ font.
     """
 
-    with open("data/cg_rom.bin", 'rb') as f:
+    itr = iter(base64.b64decode(constants.cg_rom))
 
-        while True:
-            chunk = f.read(8)
-            if chunk:
-                yield chunk
-            else:
-                break
+    for chunk in zip(*[itr]*8):
+        yield chunk
 
 
 def generate_charset(scale):
@@ -38,8 +38,7 @@ def generate_asc_to_disp():
     to display (video-RAM) code.
     """
 
-    with open("data/asc_to_disp.bin", 'rb') as f:
-        return f.read()
+    return base64.b64decode(constants.asc_to_disp)
 
 
 def generate_bitmaps(scale):
