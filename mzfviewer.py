@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # coding: utf-8
 
 
@@ -139,15 +139,18 @@ class ViewerApp(T.Frame):
         f_hexdump.grid(columnspan=2, sticky="ns", padx=10, pady=5)
 
         self.t_adr = T.Text(f_hexdump, background=constants.WHITE,
-                            width=6, height=32, font=self.font_textbox)
+                            width=6, height=32, font=self.font_textbox,
+                            cursor="arrow")
         self.t_adr.grid(padx=10, pady=10)
 
         self.t_hexdump = T.Text(f_hexdump, background=constants.WHITE,
-                                width=23, height=32, font=self.font_textbox)
+                                width=23, height=32, font=self.font_textbox,
+                                cursor="arrow")
         self.t_hexdump.grid(column=1, row=0, pady=10)
 
         self.t_pc_char = T.Text(f_hexdump, background=constants.WHITE,
-                                width=8, height=32, font=self.font_textbox)
+                                width=8, height=32, font=self.font_textbox,
+                                cursor="arrow")
         self.t_pc_char.grid(column=2, row=0, padx=10, pady=10)
 
         # Sharp MZ dump frame
