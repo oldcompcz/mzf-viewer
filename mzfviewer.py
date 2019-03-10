@@ -342,6 +342,7 @@ class ViewerApp(T.Frame):
         self.t_adr.delete("1.0", "end")
         self.t_hexdump["state"] = "normal"
         self.t_hexdump.delete("1.0", "end")
+        self.t_hexdump.tag_delete(*self.text_tags)
         self.t_pc_char["state"] = "normal"
         self.t_pc_char.delete("1.0", "end")
         self.t_pc_char.tag_delete(*self.text_tags)
