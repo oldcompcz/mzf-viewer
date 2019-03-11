@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-
 # Naming convention in this file:
 #
 # name starting with f_   ...  Frame widget
@@ -14,13 +10,14 @@
 #                    s_   ...  Spinbox widget
 
 
-import sys
 import os
+import sys
 import tkinter as T
 from tkinter import filedialog
 from tkinter import font
-import utils
+
 import constants
+import utils
 
 
 class ViewerApp(T.Frame):
@@ -30,39 +27,12 @@ class ViewerApp(T.Frame):
         self.config(background=constants.MAIN_BG)
         self.pack()
 
-        self.scale = 2
-        self.charset = tuple(T.BitmapImage(data=bitmap,
-                                           foreground=constants.WHITE)
-                             for bitmap in utils.generate_charset(self.scale))
-        self.charset_active = tuple(T.BitmapImage(data=bitmap,
-                                                  **constants.ACTIVE)
-                                    for bitmap in utils.generate_charset(
-                                                        self.scale))
-
-        self.bitmaps = tuple(T.BitmapImage(data=bitmap,
-                                           foreground=constants.WHITE)
-                             for bitmap in utils.generate_bitmaps(self.scale))
-        self.bitmaps_active = tuple(T.BitmapImage(data=bitmap,
-                                                  **constants.ACTIVE)
-                                    for bitmap in utils.generate_bitmaps(
-                                                        self.scale))
         self.flipped_values = tuple(utils.generate_flipped())
         self.asc_to_disp = utils.generate_asc_to_disp()
         self.text_tags = ["dummy"]
 
-        # monospaced font for the text widgets
-        # (search for a font size with line height exactly scale*8 px,
-        # set to scale*5 if unsuccessful)
-        self.font_textbox = font.Font(name="TkFixedFont", exists=True)
-
-        for size in range(self.scale * 9, -self.scale * 9, -1):
-            self.font_textbox.config(size=size)
-            if self.font_textbox.metrics()["linespace"] == self.scale * 8:
-                break
-        else:
-            self.font_textbox.config(size=self.scale * 5)
-
-        # variables directly connected with widgets
+        # variables to be directly connected with widgets
+        self.scale = T.IntVar()
         self.var_filename = T.StringVar()
 
         self.var_ascii = T.IntVar()
@@ -81,6 +51,10 @@ class ViewerApp(T.Frame):
         self.bmp_flipped = T.BooleanVar()
         self.bmp_flipped.set(False)
 
+        # icons for scale buttons
+        self.img_scale2 = T.PhotoImage(file="icons/scale2.png")
+        self.img_scale3 = T.PhotoImage(file="icons/scale3.png")
+
         # icons for navigation buttons
         self.img_char_left = T.PhotoImage(file="icons/charleft.png")
         self.img_line_up = T.PhotoImage(file="icons/lineup.png")
@@ -92,6 +66,7 @@ class ViewerApp(T.Frame):
         self.img_char_right = T.PhotoImage(file="icons/charright.png")
 
         self.draw_gui()
+        self.set_scale(2)
 
         # keyboard events
         self.master.bind("<Left>", self.move)
@@ -124,7 +99,14 @@ class ViewerApp(T.Frame):
 
     def draw_gui(self):
 
-        # Topmost widgets
+        # First row of widgets
+
+        b_scale2 = T.Button(self, image=self.img_scale2,
+                            command=lambda: self.change_scale(2))
+        b_scale2.grid(row=10, sticky="e")
+        b_scale3 = T.Button(self, image=self.img_scale3,
+                            command=lambda: self.change_scale(3))
+        b_scale3.grid(column=1, row=10, sticky="w")
 
         b_open = T.Button(self, text="Open file...", command=self.open_file)
         b_open.grid(column=3, row=10, sticky="e", padx=5, pady=10)
@@ -139,18 +121,15 @@ class ViewerApp(T.Frame):
         f_hexdump.grid(columnspan=5, row=15, sticky="ns", padx=10, pady=5)
 
         self.t_adr = T.Text(f_hexdump, background=constants.WHITE,
-                            width=6, height=32, font=self.font_textbox,
-                            cursor="arrow")
+                            width=6, height=32, cursor="arrow")
         self.t_adr.grid(padx=10, pady=10)
 
         self.t_hexdump = T.Text(f_hexdump, background=constants.WHITE,
-                                width=23, height=32, font=self.font_textbox,
-                                cursor="arrow")
+                                width=23, height=32, cursor="arrow")
         self.t_hexdump.grid(column=1, row=0, pady=10)
 
         self.t_pc_char = T.Text(f_hexdump, background=constants.WHITE,
-                                width=8, height=32, font=self.font_textbox,
-                                cursor="arrow")
+                                width=8, height=32, cursor="arrow")
         self.t_pc_char.grid(column=2, row=0, padx=10, pady=10)
 
         # Sharp MZ dump frame
@@ -158,9 +137,7 @@ class ViewerApp(T.Frame):
         f_mz_dump = T.Frame(self, borderwidth=3, relief="groove")
         f_mz_dump.grid(column=5, columnspan=5, row=15, sticky="ns", pady=5)
 
-        self.c_mz_dump = T.Canvas(f_mz_dump, width=self.scale * 13 * 8,
-                                  height=self.scale * 32 * 8,
-                                  background=constants.BLUE,
+        self.c_mz_dump = T.Canvas(f_mz_dump, background=constants.BLUE,
                                   highlightthickness=0)
         self.c_mz_dump.grid(rowspan=15, padx=10, pady=13)
 
@@ -190,9 +167,7 @@ class ViewerApp(T.Frame):
         f_bitmap.grid(column=10, columnspan=5, row=15, sticky="ns",
                       padx=10, pady=5)
 
-        self.c_bmp = T.Canvas(f_bitmap, width=self.scale * 8 * 8,
-                              height=self.scale * 32 * 8,
-                              background=constants.GREEN_BLUE,
+        self.c_bmp = T.Canvas(f_bitmap, background=constants.GREEN_BLUE,
                               highlightthickness=0)
         self.c_bmp.grid(rowspan=15, padx=10, pady=13)
 
@@ -331,12 +306,62 @@ class ViewerApp(T.Frame):
                 self.redraw_mz_chars()
                 self.redraw_bitmap()
 
+    def set_scale(self, scale):
+        if scale == self.scale.get():
+            return
+
+        self.scale.set(scale)
+
+        # monospaced font for the text widgets
+        # (search for a font size with line height exactly scale*8 px,
+        # set to scale*5 pt if unsuccessful)
+        mono_font = font.Font(name="TkFixedFont", exists=True)
+
+        for size in range(scale * 9, -scale * 9, -1):
+            mono_font.config(size=size)
+            if mono_font.metrics()["linespace"] == scale * 8:
+                break
+        else:
+            mono_font.config(size=scale * 5)
+
+        self.t_adr["font"] = mono_font
+        self.t_hexdump["font"] = mono_font
+        self.t_pc_char["font"] = mono_font
+
+        self.charset = tuple(T.BitmapImage(data=bitmap,
+                                           foreground=constants.WHITE)
+                             for bitmap in utils.generate_charset(scale))
+        self.charset_active = tuple(T.BitmapImage(data=bitmap,
+                                                  **constants.ACTIVE)
+                                    for bitmap in utils.generate_charset(
+                                                        scale))
+
+        self.bitmaps = tuple(T.BitmapImage(data=bitmap,
+                                           foreground=constants.WHITE)
+                             for bitmap in utils.generate_bitmaps(scale))
+        self.bitmaps_active = tuple(T.BitmapImage(data=bitmap,
+                                                  **constants.ACTIVE)
+                                    for bitmap in utils.generate_bitmaps(
+                                                        scale))
+
+        self.c_mz_dump["width"] = scale * 13 * 8
+        self.c_mz_dump["height"] = scale * 32 * 8
+        self.c_bmp["width"] = scale * 8 * 8
+        self.c_bmp["height"] = scale * 32 * 8
+
+    def change_scale(self, scale):
+        self.set_scale(scale)
+        self.redraw_main()
+        self.redraw_mz_chars()
+        self.redraw_bitmap()
+
     def redraw_main(self):
         """Update the contents of the 't_adr', 't_hexdump', 't_pc_char' text
         widgets, and redraw addresses and header highlight on the 'c_mz_dump'
         canvas.
         """
-        q = 8 * self.scale
+
+        q = 8 * self.scale.get()
 
         self.t_adr["state"] = "normal"
         self.t_adr.delete("1.0", "end")
@@ -405,9 +430,9 @@ class ViewerApp(T.Frame):
         self.t_pc_char["state"] = "disabled"
 
     def redraw_mz_chars(self):
-        """Redraw ascii chars (but not addresses) on the 'c_mz_dump' canvas.
-        """
-        q = 8 * self.scale
+        """Redraw ascii chars (but not addresses) on the 'c_mz_dump' canvas."""
+
+        q = 8 * self.scale.get()
 
         self.c_mz_dump.delete("chr")
 
@@ -474,8 +499,9 @@ class ViewerApp(T.Frame):
                                  image=self.previous_bmp)
 
     def redraw_bitmap(self):
-        """Redraw the contents of the 'c_bmp' bitmap canvas.
-        """
+        """Redraw the contents of the 'c_bmp' bitmap canvas."""
+
+        scale = self.scale.get()
 
         self.c_bmp.delete("all")
         row_length = int(self.bmp_columns.get())
@@ -500,8 +526,8 @@ class ViewerApp(T.Frame):
                     if self.bmp_flipped.get():
                         byte = self.flipped_values[byte]
                     tag = "item{}".format(index)
-                    self.c_bmp.create_image(i * 8 * self.scale,
-                                            self.scale*(j*block_height + k),
+                    self.c_bmp.create_image(i * 8 * scale,
+                                            scale*(j*block_height + k),
                                             image=self.bitmaps[byte],
                                             activeimage=self.bitmaps_active[byte],
                                             anchor="nw", tag=tag)
@@ -509,9 +535,10 @@ class ViewerApp(T.Frame):
                     self.c_bmp.tag_bind(tag, "<Leave>", self.mouse_leave)
 
     def close(self, *args):
-        """Close the application window. Called with one <tkinter.Event>
-        argument when using the Alt+X shortcut, or without this argument when
-        using the Exit button.
+        """Close the application window.
+
+        Called with one <tkinter.Event> argument when using the Alt+X shortcut,
+        or without this argument when using the Exit button.
         """
 
         self.master.destroy()
