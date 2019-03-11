@@ -127,16 +127,16 @@ class ViewerApp(T.Frame):
         # Topmost widgets
 
         b_open = T.Button(self, text="Open file...", command=self.open_file)
-        b_open.grid(sticky="e", padx=10, pady=10)
+        b_open.grid(column=3, row=10, sticky="e", padx=5, pady=10)
 
         l_filename = T.Label(self, textvariable=self.var_filename, anchor="w")
-        l_filename.grid(column=1, row=0, columnspan=3, sticky="ew",
-                        padx=10, pady=10)
+        l_filename.grid(column=4, row=10, columnspan=8, sticky="ew",
+                        padx=5, pady=10)
 
         # Standard hex dump frame
 
         f_hexdump = T.Frame(self, borderwidth=3, relief="groove")
-        f_hexdump.grid(columnspan=2, sticky="ns", padx=10, pady=5)
+        f_hexdump.grid(columnspan=5, row=15, sticky="ns", padx=10, pady=5)
 
         self.t_adr = T.Text(f_hexdump, background=constants.WHITE,
                             width=6, height=32, font=self.font_textbox,
@@ -156,7 +156,7 @@ class ViewerApp(T.Frame):
         # Sharp MZ dump frame
 
         f_mz_dump = T.Frame(self, borderwidth=3, relief="groove")
-        f_mz_dump.grid(column=2, row=1, sticky="ns", pady=5)
+        f_mz_dump.grid(column=5, columnspan=5, row=15, sticky="ns", pady=5)
 
         self.c_mz_dump = T.Canvas(f_mz_dump, width=self.scale * 13 * 8,
                                   height=self.scale * 32 * 8,
@@ -187,7 +187,7 @@ class ViewerApp(T.Frame):
         # Bitmap frame
 
         f_bitmap = T.Frame(self, borderwidth=3, relief="groove")
-        f_bitmap.grid(column=3, row=1, columnspan=2, sticky="ns",
+        f_bitmap.grid(column=10, columnspan=5, row=15, sticky="ns",
                       padx=10, pady=5)
 
         self.c_bmp = T.Canvas(f_bitmap, width=self.scale * 8 * 8,
@@ -230,7 +230,7 @@ class ViewerApp(T.Frame):
         # Navigation buttons
 
         f_navigate = T.Frame(self, borderwidth=3, relief="groove")
-        f_navigate.grid(column=1, columnspan=3, padx=10, pady=10)
+        f_navigate.grid(column=3, row=20, columnspan=9, pady=10)
 
         b_char_left = T.Button(f_navigate, text="Char\nLeft",
                                image=self.img_char_left, compound="top",
@@ -275,7 +275,7 @@ class ViewerApp(T.Frame):
         # Exit button
 
         b_exit = T.Button(self, text="Exit", command=self.close)
-        b_exit.grid(column=4, row=2, sticky="es", padx=10, pady=10)
+        b_exit.grid(column=14, row=20, sticky="ews", padx=10, pady=10)
 
     def open_file(self, filename=None):
 
