@@ -1,5 +1,6 @@
 import base64
-import constants
+
+from mzfviewer import constants
 
 
 def generate_cgrom():
@@ -57,8 +58,7 @@ static unsigned char byte{n}_bits[] = {{ {data} }}"""
 
 
 def generate_flipped():
-    """Generate a sequence of bitwise mirrored 8-bit values.
-    """
+    """Generate a sequence of bitwise mirrored 8-bit values."""
 
     for n in range(256):
         bin_string_reversed = "{:08b}".format(n)[::-1]
@@ -67,6 +67,8 @@ def generate_flipped():
 
 def zoomed(byte, scale):
     """Return a sequence of bytes that represent a "bitwise zoom" of 'byte'.
+
+    'scale' must be 2 or 3.
     """
 
     zoomed_bits = {2: (3, 12, 48, 192, 768, 3072, 12288, 49152),

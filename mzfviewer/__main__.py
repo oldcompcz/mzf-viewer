@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-
 # Naming convention in this file:
 #
 # name starting with f_   ...  Frame widget
@@ -14,13 +10,14 @@
 #                    s_   ...  Spinbox widget
 
 
-import sys
 import os
+import sys
 import tkinter as T
 from tkinter import filedialog
 from tkinter import font
-import utils
-import constants
+
+from mzfviewer import constants
+from mzfviewer import utils
 
 
 class ViewerApp(T.Frame):
@@ -30,22 +27,24 @@ class ViewerApp(T.Frame):
         self.config(background=constants.MAIN_BG)
         self.pack()
 
-        self.scale = 2
+        scale = 2
+        self.scale = scale
+
         self.charset = tuple(T.BitmapImage(data=bitmap,
                                            foreground=constants.WHITE)
-                             for bitmap in utils.generate_charset(self.scale))
+                             for bitmap in utils.generate_charset(scale))
         self.charset_active = tuple(T.BitmapImage(data=bitmap,
                                                   **constants.ACTIVE)
                                     for bitmap in utils.generate_charset(
-                                                        self.scale))
+                                                        scale))
 
         self.bitmaps = tuple(T.BitmapImage(data=bitmap,
                                            foreground=constants.WHITE)
-                             for bitmap in utils.generate_bitmaps(self.scale))
+                             for bitmap in utils.generate_bitmaps(scale))
         self.bitmaps_active = tuple(T.BitmapImage(data=bitmap,
                                                   **constants.ACTIVE)
                                     for bitmap in utils.generate_bitmaps(
-                                                        self.scale))
+                                                        scale))
         self.flipped_values = tuple(utils.generate_flipped())
         self.asc_to_disp = utils.generate_asc_to_disp()
         self.text_tags = ["dummy"]
@@ -55,12 +54,12 @@ class ViewerApp(T.Frame):
         # set to scale*5 if unsuccessful)
         self.font_textbox = font.Font(name="TkFixedFont", exists=True)
 
-        for size in range(self.scale * 9, -self.scale * 9, -1):
+        for size in range(scale * 9, -scale * 9, -1):
             self.font_textbox.config(size=size)
-            if self.font_textbox.metrics()["linespace"] == self.scale * 8:
+            if self.font_textbox.metrics()["linespace"] == scale * 8:
                 break
         else:
-            self.font_textbox.config(size=self.scale * 5)
+            self.font_textbox.config(size=scale * 5)
 
         # variables directly connected with widgets
         self.var_filename = T.StringVar()
@@ -82,14 +81,14 @@ class ViewerApp(T.Frame):
         self.bmp_flipped.set(False)
 
         # icons for navigation buttons
-        self.img_char_left = T.PhotoImage(file="icons/charleft.png")
-        self.img_line_up = T.PhotoImage(file="icons/lineup.png")
-        self.img_page_up = T.PhotoImage(file="icons/pageup.png")
-        self.img_home = T.PhotoImage(file="icons/home.png")
-        self.img_end = T.PhotoImage(file="icons/end.png")
-        self.img_page_down = T.PhotoImage(file="icons/pagedown.png")
-        self.img_line_down = T.PhotoImage(file="icons/linedown.png")
-        self.img_char_right = T.PhotoImage(file="icons/charright.png")
+        self.img_char_left = T.PhotoImage(file=constants.ICON_CHARLEFT)
+        self.img_line_up = T.PhotoImage(file=constants.ICON_LINEUP)
+        self.img_page_up = T.PhotoImage(file=constants.ICON_PAGEUP)
+        self.img_home = T.PhotoImage(file=constants.ICON_HOME)
+        self.img_end = T.PhotoImage(file=constants.ICON_END)
+        self.img_page_down = T.PhotoImage(file=constants.ICON_PAGEDOWN)
+        self.img_line_down = T.PhotoImage(file=constants.ICON_LINEDOWN)
+        self.img_char_right = T.PhotoImage(file=constants.ICON_CHARRIGHT)
 
         self.draw_gui()
 
@@ -123,8 +122,9 @@ class ViewerApp(T.Frame):
             self.visible_data = b""
 
     def draw_gui(self):
+        scale = self.scale
 
-        # Topmost widgets
+        # First row of widgets
 
         b_open = T.Button(self, text="Open file...", command=self.open_file)
         b_open.grid(column=3, row=10, sticky="e", padx=5, pady=10)
@@ -158,8 +158,8 @@ class ViewerApp(T.Frame):
         f_mz_dump = T.Frame(self, borderwidth=3, relief="groove")
         f_mz_dump.grid(column=5, columnspan=5, row=15, sticky="ns", pady=5)
 
-        self.c_mz_dump = T.Canvas(f_mz_dump, width=self.scale * 13 * 8,
-                                  height=self.scale * 32 * 8,
+        self.c_mz_dump = T.Canvas(f_mz_dump, width=scale * 13 * 8,
+                                  height=scale * 32 * 8,
                                   background=constants.BLUE,
                                   highlightthickness=0)
         self.c_mz_dump.grid(rowspan=15, padx=10, pady=13)
@@ -190,8 +190,8 @@ class ViewerApp(T.Frame):
         f_bitmap.grid(column=10, columnspan=5, row=15, sticky="ns",
                       padx=10, pady=5)
 
-        self.c_bmp = T.Canvas(f_bitmap, width=self.scale * 8 * 8,
-                              height=self.scale * 32 * 8,
+        self.c_bmp = T.Canvas(f_bitmap, width=scale * 8 * 8,
+                              height=scale * 32 * 8,
                               background=constants.GREEN_BLUE,
                               highlightthickness=0)
         self.c_bmp.grid(rowspan=15, padx=10, pady=13)
@@ -336,6 +336,7 @@ class ViewerApp(T.Frame):
         widgets, and redraw addresses and header highlight on the 'c_mz_dump'
         canvas.
         """
+
         q = 8 * self.scale
 
         self.t_adr["state"] = "normal"
@@ -405,8 +406,8 @@ class ViewerApp(T.Frame):
         self.t_pc_char["state"] = "disabled"
 
     def redraw_mz_chars(self):
-        """Redraw ascii chars (but not addresses) on the 'c_mz_dump' canvas.
-        """
+        """Redraw ascii chars (but not addresses) on the 'c_mz_dump' canvas."""
+
         q = 8 * self.scale
 
         self.c_mz_dump.delete("chr")
@@ -474,8 +475,9 @@ class ViewerApp(T.Frame):
                                  image=self.previous_bmp)
 
     def redraw_bitmap(self):
-        """Redraw the contents of the 'c_bmp' bitmap canvas.
-        """
+        """Redraw the contents of the 'c_bmp' bitmap canvas."""
+
+        scale = self.scale
 
         self.c_bmp.delete("all")
         row_length = int(self.bmp_columns.get())
@@ -500,8 +502,8 @@ class ViewerApp(T.Frame):
                     if self.bmp_flipped.get():
                         byte = self.flipped_values[byte]
                     tag = "item{}".format(index)
-                    self.c_bmp.create_image(i * 8 * self.scale,
-                                            self.scale*(j*block_height + k),
+                    self.c_bmp.create_image(i * 8 * scale,
+                                            scale*(j*block_height + k),
                                             image=self.bitmaps[byte],
                                             activeimage=self.bitmaps_active[byte],
                                             anchor="nw", tag=tag)
@@ -509,9 +511,10 @@ class ViewerApp(T.Frame):
                     self.c_bmp.tag_bind(tag, "<Leave>", self.mouse_leave)
 
     def close(self, *args):
-        """Close the application window. Called with one <tkinter.Event>
-        argument when using the Alt+X shortcut, or without this argument when
-        using the Exit button.
+        """Close the application window.
+
+        Called with one <tkinter.Event> argument when using the Alt+X shortcut,
+        or without this argument when using the Exit button.
         """
 
         self.master.destroy()

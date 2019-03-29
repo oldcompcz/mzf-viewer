@@ -1,3 +1,6 @@
+import os
+
+
 # Colors
 
 MAIN_BG = "#a0b0b0"
@@ -15,6 +18,20 @@ ACTIVE = {"foreground": ORANGE, "background": "#000000"}
 # Other
 
 NON_DIGITS = "_ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+# Resources
+
+package_path = os.path.dirname(__file__)
+
+ICON_CHARLEFT = os.path.join(package_path, 'icons/charleft.png')
+ICON_LINEUP = os.path.join(package_path, 'icons/lineup.png')
+ICON_PAGEUP = os.path.join(package_path, 'icons/pageup.png')
+ICON_HOME = os.path.join(package_path, 'icons/home.png')
+ICON_END = os.path.join(package_path, 'icons/end.png')
+ICON_PAGEDOWN = os.path.join(package_path, 'icons/pagedown.png')
+ICON_LINEDOWN = os.path.join(package_path, 'icons/linedown.png')
+ICON_CHARRIGHT = os.path.join(package_path, 'icons/charright.png')
 
 
 # Base64 data
