@@ -24,6 +24,8 @@ NON_DIGITS = "_ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 package_path = os.path.dirname(__file__)
 
+ICON_SCALE2 = os.path.join(package_path, 'icons/scale2.png')
+ICON_SCALE3 = os.path.join(package_path, 'icons/scale3.png')
 ICON_CHARLEFT = os.path.join(package_path, 'icons/charleft.png')
 ICON_LINEUP = os.path.join(package_path, 'icons/lineup.png')
 ICON_PAGEUP = os.path.join(package_path, 'icons/pageup.png')
