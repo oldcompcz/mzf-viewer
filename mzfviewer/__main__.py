@@ -25,7 +25,6 @@ class ViewerApp(T.Frame):
     def __init__(self, master):
 
         super().__init__(master)
-        self.config(background=constants.MAIN_BG)
         self.pack()
 
         self.flipped_values = tuple(utils.generate_flipped())
@@ -103,6 +102,12 @@ class ViewerApp(T.Frame):
                           variable=self.zoom, command=self.change_zoom)
         sc_zoom.grid(row=10, sticky="w", padx=10)
 
+        # TODO:
+        # 'Open file' and 'Exit' pushbuttons:
+        #   - explore AltUnderline virtual event - can it be used in
+        #     connection with Button's 'underline' option , or is it
+        #     reserved only for menu entries?
+
         b_open = T.Button(self, text="Open file...", command=self.open_file)
         b_open.grid(column=3, row=10, sticky="e", padx=5, pady=10)
 
@@ -131,6 +136,11 @@ class ViewerApp(T.Frame):
 
         f_mz_dump = T.Frame(self, borderwidth=3, relief="groove")
         f_mz_dump.grid(column=5, columnspan=5, row=15, sticky="ns", pady=5)
+
+        # TODO:
+        # Canvas widgets:
+        #   - explore MouseWheel events above canvases and why it
+        #     doesn't work on Linux
 
         self.c_mz_dump = T.Canvas(f_mz_dump, background=constants.BLUE,
                                   highlightthickness=0)
@@ -169,6 +179,12 @@ class ViewerApp(T.Frame):
         l_bitmap_columns = T.Label(f_bitmap, text="Columns:")
         l_bitmap_columns.grid(column=1, row=0, sticky="ws")
 
+        # TODO:
+        # 'Columns' and 'Block height' spinboxes:
+        #   - explore spinbox value validation and how to use it when
+        #     values are edited from keyboard
+        #   - can MouseWheel events be used to control these spinboxes?
+
         sb_bitmap_columns = T.Spinbox(f_bitmap, width=2, from_=1, to=8,
                                       increment=1,
                                       textvariable=self.bmp_columns,
@@ -187,6 +203,10 @@ class ViewerApp(T.Frame):
         l_disp = T.Label(f_bitmap, text="Bytes displayed:")
         l_disp.grid(column=1, row=2, sticky="nw")
 
+        # TODO:
+        # 'Bytes displayed' widget:
+        #   - change to a roll-down list? (only 8 possible values,
+        #     which is acceptable)
 
         sb_disp = T.Spinbox(f_bitmap, width=4, from_=256, to=2048,
                             increment=256, textvariable=self.bmp_displayed,
@@ -540,6 +560,7 @@ class ViewerApp(T.Frame):
 def main():
     root = T.Tk()
     root.wm_title("MZF Viewer")
+    root.tk_setPalette(constants.MAIN_BG)
     app = ViewerApp(master=root)
     app.mainloop()
 
