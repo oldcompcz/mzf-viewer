@@ -15,17 +15,15 @@ GREEN_BLUE = "#287070"
 ACTIVE = {"foreground": ORANGE, "background": "#000000"}
 
 
-# Other
+# Misc
 
 NON_DIGITS = "_ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
-# Resources
+# Paths
 
 package_path = os.path.dirname(__file__)
 
-ICON_SCALE2 = os.path.join(package_path, 'icons/scale2.png')
-ICON_SCALE3 = os.path.join(package_path, 'icons/scale3.png')
 ICON_CHARLEFT = os.path.join(package_path, 'icons/charleft.png')
 ICON_LINEUP = os.path.join(package_path, 'icons/lineup.png')
 ICON_PAGEUP = os.path.join(package_path, 'icons/pageup.png')
@@ -38,7 +36,7 @@ ICON_CHARRIGHT = os.path.join(package_path, 'icons/charright.png')
 
 # Base64 data
 
-cg_rom = b"""AAAAAAAAAAA8QkJ+QkJCAD5ERDxERD4APEICAgJCPAA+REREREQ+AH4CAh4CAn4Af
+CG_ROM = b"""AAAAAAAAAAA8QkJ+QkJCAD5ERDxERD4APEICAgJCPAA+REREREQ+AH4CAh4CAn4Af
 gICHgICAgA8QgJyQkI8AEJCQn5CQkIAOBAQEBAQOABwICAgICIcAEIiEg4SIkIAAgICAgICfgBCZlp
 aQkJCAEJGSlJiQkIAGCRCQkIkGAA+QkI+AgICABgkQkJSJFgAPkJCPhIiQgA8QgI8QEI8AHwQEBAQE
 BAAQkJCQkJCPABCQkIkJBgYAEJCQlpaZkIAQkIkGCRCQgBEREQ4EBAQAH5AIBgEAn4AMEgIHAgIfAA
@@ -110,7 +108,7 @@ ADBq//54MAAAwWP3/eTAAAAwav/yfDAAAMFj9P/kwAAgUFj0/HggcXXdVHBxdf11df10cHFV3XQDnQ
 v/5/0LnAOdC/5//QucAAD84/sZ8AAAA/Bx/Yz4A/4GlgYGlgf/ngYEAAIGB5wAgEH8IfwQCGCQkBAg
 ICAgQEBAQICQkGA=="""
 
-asc_to_disp = b"""8PDw8PDw8PDw8PDw8PDw8PDBwsPExcbw8PDw8PDw8PAAYWJjZGVmZ2hpa2ov
+ASC_TO_DISP = b"""8PDw8PDw8PDw8PDw8PDw8PDBwsPExcbw8PDw8PDw8PAAYWJjZGVmZ2hpa2ov
 Ki4tICEiIyQlJicoKU8sUStXSVUBAgMEBQYHCAkKCwwNDg8QERITFBUWFxgZGlJZVFBFx8jJysvMzc
 7P3+fo5ens7dDR0tPU1dbX2Nna29zd3sBAvZ2xtbm0nrK2ur6fs7e7v6OFpKWmlIeInIKYhJKQg5GB
 mpeTlYmhr4uGlqKrqoqOsK2Np6ipj4yurJugmby4gDs6cDxxWj1DVj8eShxdPlwfX143e382en4zS0

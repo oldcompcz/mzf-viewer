@@ -7,7 +7,8 @@
 #                    b_   ...  Button widget
 #                   rb_   ...  Radiobutton widget
 #                   cb_   ...  Checkbutton widget
-#                    s_   ...  Spinbox widget
+#                   sb_   ...  Spinbox widget
+#                    s_   ...  Scale widget
 
 
 import os
@@ -32,7 +33,7 @@ class ViewerApp(T.Frame):
         self.text_tags = ["dummy"]
 
         # variables to be directly connected with widgets
-        self.scale = T.IntVar()
+        self.zoom = T.IntVar()
         self.var_filename = T.StringVar()
 
         self.var_ascii = T.IntVar()
@@ -51,10 +52,6 @@ class ViewerApp(T.Frame):
         self.bmp_flipped = T.BooleanVar()
         self.bmp_flipped.set(False)
 
-        # icons for scale buttons
-        self.img_scale2 = T.PhotoImage(file=constants.ICON_SCALE2)
-        self.img_scale3 = T.PhotoImage(file=constants.ICON_SCALE3)
-
         # icons for navigation buttons
         self.img_char_left = T.PhotoImage(file=constants.ICON_CHARLEFT)
         self.img_line_up = T.PhotoImage(file=constants.ICON_LINEUP)
@@ -66,7 +63,7 @@ class ViewerApp(T.Frame):
         self.img_char_right = T.PhotoImage(file=constants.ICON_CHARRIGHT)
 
         self.draw_gui()
-        self.set_scale(2)
+        self.set_zoom(2)
 
         # keyboard events
         self.master.bind("<Left>", self.move)
@@ -101,12 +98,10 @@ class ViewerApp(T.Frame):
 
         # First row of widgets
 
-        b_scale2 = T.Button(self, image=self.img_scale2,
-                            command=lambda: self.change_scale(2))
-        b_scale2.grid(row=10, sticky="e")
-        b_scale3 = T.Button(self, image=self.img_scale3,
-                            command=lambda: self.change_scale(3))
-        b_scale3.grid(column=1, row=10, sticky="w")
+        sc_zoom = T.Scale(self, label="Zoom:", orient='horizontal',
+                          from_=2, to=3, showvalue=False,
+                          variable=self.zoom, command=self.change_zoom)
+        sc_zoom.grid(row=10, sticky="w", padx=10)
 
         b_open = T.Button(self, text="Open file...", command=self.open_file)
         b_open.grid(column=3, row=10, sticky="e", padx=5, pady=10)
@@ -146,17 +141,17 @@ class ViewerApp(T.Frame):
                                  command=self.redraw_mz_chars)
         rb_ascii.grid(column=1, row=0, sticky="sw", padx=5)
 
-        rb_display = T.Radiobutton(f_mz_dump, text="display",
+        rb_display = T.Radiobutton(f_mz_dump, text="Display",
                                    variable=self.var_ascii, value=0,
                                    command=self.redraw_mz_chars)
         rb_display.grid(column=1, row=1, sticky="nw", padx=5)
 
-        rb_charset1 = T.Radiobutton(f_mz_dump, text="charset 1",
+        rb_charset1 = T.Radiobutton(f_mz_dump, text="Charset 1",
                                     variable=self.alt_charset, value=False,
                                     command=self.redraw_mz_chars)
         rb_charset1.grid(column=1, row=2, sticky="sw", padx=5)
 
-        rb_charset2 = T.Radiobutton(f_mz_dump, text="charset 2",
+        rb_charset2 = T.Radiobutton(f_mz_dump, text="Charset 2",
                                     variable=self.alt_charset, value=True,
                                     command=self.redraw_mz_chars)
         rb_charset2.grid(column=1, row=3, sticky="nw", padx=5)
@@ -174,30 +169,31 @@ class ViewerApp(T.Frame):
         l_bitmap_columns = T.Label(f_bitmap, text="Columns:")
         l_bitmap_columns.grid(column=1, row=0, sticky="ws")
 
-        s_bitmap_columns = T.Spinbox(f_bitmap, width=2, from_=1, to=8,
-                                     increment=1,
-                                     textvariable=self.bmp_columns,
-                                     command=self.redraw_bitmap)
-        s_bitmap_columns.grid(column=2, row=0, sticky="ws", padx=10)
+        sb_bitmap_columns = T.Spinbox(f_bitmap, width=2, from_=1, to=8,
+                                      increment=1,
+                                      textvariable=self.bmp_columns,
+                                      command=self.redraw_bitmap)
+        sb_bitmap_columns.grid(column=2, row=0, sticky="ws", padx=10)
 
         l_block_height = T.Label(f_bitmap, text="Block height:")
         l_block_height.grid(column=1, row=1, sticky="nw")
 
-        s_block_height = T.Spinbox(f_bitmap, width=2, from_=1, to=64,
-                                   increment=1,
-                                   textvariable=self.bmp_block_height,
-                                   command=self.redraw_bitmap)
-        s_block_height.grid(column=2, row=1, sticky="nw", padx=10)
+        sb_block_height = T.Spinbox(f_bitmap, width=2, from_=1, to=64,
+                                    increment=1,
+                                    textvariable=self.bmp_block_height,
+                                    command=self.redraw_bitmap)
+        sb_block_height.grid(column=2, row=1, sticky="nw", padx=10)
 
-        l_displayed = T.Label(f_bitmap, text="Bytes displayed:")
-        l_displayed.grid(column=1, row=2, sticky="nw")
+        l_disp = T.Label(f_bitmap, text="Bytes displayed:")
+        l_disp.grid(column=1, row=2, sticky="nw")
 
-        s_displayed = T.Spinbox(f_bitmap, width=4, from_=256, to=2048,
-                                increment=256, textvariable=self.bmp_displayed,
-                                command=self.redraw_bitmap)
-        s_displayed.grid(column=2, row=2, sticky="nw", padx=10)
 
-        cb_flipped = T.Checkbutton(f_bitmap, text="horizontal flip",
+        sb_disp = T.Spinbox(f_bitmap, width=4, from_=256, to=2048,
+                            increment=256, textvariable=self.bmp_displayed,
+                            command=self.redraw_bitmap)
+        sb_disp.grid(column=2, row=2, sticky="nw", padx=10)
+
+        cb_flipped = T.Checkbutton(f_bitmap, text="Horizontal flip",
                                    variable=self.bmp_flipped,
                                    command=self.redraw_bitmap)
         cb_flipped.grid(column=1, row=3, columnspan=2, sticky="nw")
@@ -306,23 +302,20 @@ class ViewerApp(T.Frame):
                 self.redraw_mz_chars()
                 self.redraw_bitmap()
 
-    def set_scale(self, scale):
-        if scale == self.scale.get():
-            return
-
-        self.scale.set(scale)
+    def set_zoom(self, zoom):
+        self.zoom.set(zoom)
 
         # monospaced font for the text widgets
-        # (search for a font size with line height exactly scale*8 px,
-        # set to scale*5 pt if unsuccessful)
+        # (search for a font size with line height exactly zoom*8 px,
+        # set to zoom*5 pt if unsuccessful)
         mono_font = font.Font(name="TkFixedFont", exists=True)
 
-        for size in range(scale * 9, -scale * 9, -1):
+        for size in range(zoom * 9, -zoom * 9, -1):
             mono_font.config(size=size)
-            if mono_font.metrics()["linespace"] == scale * 8:
+            if mono_font.metrics()["linespace"] == zoom * 8:
                 break
         else:
-            mono_font.config(size=scale * 5)
+            mono_font.config(size=zoom * 5)
 
         self.t_adr["font"] = mono_font
         self.t_hexdump["font"] = mono_font
@@ -330,27 +323,27 @@ class ViewerApp(T.Frame):
 
         self.charset = tuple(T.BitmapImage(data=bitmap,
                                            foreground=constants.WHITE)
-                             for bitmap in utils.generate_charset(scale))
+                             for bitmap in utils.generate_charset(zoom))
         self.charset_active = tuple(T.BitmapImage(data=bitmap,
                                                   **constants.ACTIVE)
                                     for bitmap in utils.generate_charset(
-                                                        scale))
+                                                        zoom))
 
         self.bitmaps = tuple(T.BitmapImage(data=bitmap,
                                            foreground=constants.WHITE)
-                             for bitmap in utils.generate_bitmaps(scale))
+                             for bitmap in utils.generate_bitmaps(zoom))
         self.bitmaps_active = tuple(T.BitmapImage(data=bitmap,
                                                   **constants.ACTIVE)
                                     for bitmap in utils.generate_bitmaps(
-                                                        scale))
+                                                        zoom))
 
-        self.c_mz_dump["width"] = scale * 13 * 8
-        self.c_mz_dump["height"] = scale * 32 * 8
-        self.c_bmp["width"] = scale * 8 * 8
-        self.c_bmp["height"] = scale * 32 * 8
+        self.c_mz_dump["width"] = zoom * 13 * 8
+        self.c_mz_dump["height"] = zoom * 32 * 8
+        self.c_bmp["width"] = zoom * 8 * 8
+        self.c_bmp["height"] = zoom * 32 * 8
 
-    def change_scale(self, scale):
-        self.set_scale(scale)
+    def change_zoom(self, zoom):
+        self.set_zoom(int(zoom))
         if self.file_data:
             self.redraw_main()
             self.redraw_mz_chars()
@@ -362,7 +355,7 @@ class ViewerApp(T.Frame):
         canvas.
         """
 
-        q = 8 * self.scale.get()
+        q = 8 * self.zoom.get()
 
         self.t_adr["state"] = "normal"
         self.t_adr.delete("1.0", "end")
@@ -433,7 +426,7 @@ class ViewerApp(T.Frame):
     def redraw_mz_chars(self):
         """Redraw ascii chars (but not addresses) on the 'c_mz_dump' canvas."""
 
-        q = 8 * self.scale.get()
+        q = 8 * self.zoom.get()
 
         self.c_mz_dump.delete("chr")
 
@@ -502,7 +495,7 @@ class ViewerApp(T.Frame):
     def redraw_bitmap(self):
         """Redraw the contents of the 'c_bmp' bitmap canvas."""
 
-        scale = self.scale.get()
+        z = self.zoom.get()
 
         self.c_bmp.delete("all")
         row_length = int(self.bmp_columns.get())
@@ -527,8 +520,7 @@ class ViewerApp(T.Frame):
                     if self.bmp_flipped.get():
                         byte = self.flipped_values[byte]
                     tag = "item{}".format(index)
-                    self.c_bmp.create_image(i * 8 * scale,
-                                            scale*(j*block_height + k),
+                    self.c_bmp.create_image(i * 8*z, z * (j*block_height + k),
                                             image=self.bitmaps[byte],
                                             activeimage=self.bitmaps_active[byte],
                                             anchor="nw", tag=tag)
