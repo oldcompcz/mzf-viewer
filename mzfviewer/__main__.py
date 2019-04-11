@@ -27,16 +27,48 @@ class ViewerApp(T.Frame):
         super().__init__(master)
         self.pack()
 
+        self.charsets = {2: tuple(T.BitmapImage(data=bitmap,
+                                                foreground=constants.WHITE)
+                                  for bitmap in utils.generate_charset(2)),
+                         3: tuple(T.BitmapImage(data=bitmap,
+                                                foreground=constants.WHITE)
+                                  for bitmap in utils.generate_charset(3))
+                         }
+
+        self.charsets_active = {2: tuple(T.BitmapImage(data=bitmap,
+                                         **constants.ACTIVE)
+                                         for bitmap in utils.generate_charset(2)),
+                                3: tuple(T.BitmapImage(data=bitmap,
+                                                       **constants.ACTIVE)
+                                         for bitmap in utils.generate_charset(3))
+                                }
+
+        self.bmps = {2: tuple(T.BitmapImage(data=bitmap,
+                                            foreground=constants.WHITE)
+                              for bitmap in utils.generate_bitmaps(2)),
+                     3: tuple(T.BitmapImage(data=bitmap,
+                                            foreground=constants.WHITE)
+                              for bitmap in utils.generate_bitmaps(3))
+                     }
+
+        self.bmps_active = {2: tuple(T.BitmapImage(data=bitmap,
+                                                   **constants.ACTIVE)
+                                     for bitmap in utils.generate_bitmaps(2)),
+                            3: tuple(T.BitmapImage(data=bitmap,
+                                                   **constants.ACTIVE)
+                                     for bitmap in utils.generate_bitmaps(3))
+                            }
+
         self.flipped_values = tuple(utils.generate_flipped())
         self.asc_to_disp = utils.generate_asc_to_disp()
         self.text_tags = ["dummy"]
 
         # variables to be directly connected with widgets
         self.zoom = T.IntVar()
-        self.var_filename = T.StringVar()
+        self.filename = T.StringVar()
 
-        self.var_ascii = T.IntVar()
-        self.var_ascii.set(1)
+        self.asc_code = T.BooleanVar()
+        self.asc_code.set(True)
 
         self.alt_charset = T.BooleanVar()
         self.alt_charset.set(False)
@@ -87,7 +119,7 @@ class ViewerApp(T.Frame):
         if sys.argv[1:] and os.path.isfile(sys.argv[1]):
             self.open_file(sys.argv[1])
         else:
-            self.var_filename.set("[no file]")
+            self.filename.set("[no file]")
             self.open_dir = "./sample_mzf/"
             self.file_data = b""
             self.position = 0
@@ -111,7 +143,7 @@ class ViewerApp(T.Frame):
         b_open = T.Button(self, text="Open file...", command=self.open_file)
         b_open.grid(column=3, row=10, sticky="e", padx=5, pady=10)
 
-        l_filename = T.Label(self, textvariable=self.var_filename, anchor="w")
+        l_filename = T.Label(self, textvariable=self.filename, anchor="w")
         l_filename.grid(column=4, row=10, columnspan=8, sticky="ew",
                         padx=5, pady=10)
 
@@ -147,12 +179,12 @@ class ViewerApp(T.Frame):
         self.c_mz_dump.grid(rowspan=15, padx=10, pady=13)
 
         rb_ascii = T.Radiobutton(f_mz_dump, text="ASCII",
-                                 variable=self.var_ascii, value=1,
+                                 variable=self.asc_code, value=True,
                                  command=self.redraw_mz_chars)
         rb_ascii.grid(column=1, row=0, sticky="sw", padx=5)
 
         rb_display = T.Radiobutton(f_mz_dump, text="Display",
-                                   variable=self.var_ascii, value=0,
+                                   variable=self.asc_code, value=False,
                                    command=self.redraw_mz_chars)
         rb_display.grid(column=1, row=1, sticky="nw", padx=5)
 
@@ -278,8 +310,8 @@ class ViewerApp(T.Frame):
             filename = dialog.show()
 
         if filename:
-            self.var_filename.set(filename)
-            self.open_dir = os.path.split(os.path.abspath(filename))[0]
+            self.filename.set(filename)
+            self.open_dir = os.path.dirname(os.path.abspath(filename))
 
             with open(filename, "rb") as f:
                 self.file_data = f.read()
@@ -341,21 +373,10 @@ class ViewerApp(T.Frame):
         self.t_hexdump["font"] = mono_font
         self.t_pc_char["font"] = mono_font
 
-        self.charset = tuple(T.BitmapImage(data=bitmap,
-                                           foreground=constants.WHITE)
-                             for bitmap in utils.generate_charset(zoom))
-        self.charset_active = tuple(T.BitmapImage(data=bitmap,
-                                                  **constants.ACTIVE)
-                                    for bitmap in utils.generate_charset(
-                                                        zoom))
-
-        self.bitmaps = tuple(T.BitmapImage(data=bitmap,
-                                           foreground=constants.WHITE)
-                             for bitmap in utils.generate_bitmaps(zoom))
-        self.bitmaps_active = tuple(T.BitmapImage(data=bitmap,
-                                                  **constants.ACTIVE)
-                                    for bitmap in utils.generate_bitmaps(
-                                                        zoom))
+        self.charset = self.charsets[zoom]
+        self.charset_active = self.charsets_active[zoom]
+        self.bitmaps = self.bmps[zoom]
+        self.bitmaps_active = self.bmps_active[zoom]
 
         self.c_mz_dump["width"] = zoom * 13 * 8
         self.c_mz_dump["height"] = zoom * 32 * 8
@@ -431,7 +452,7 @@ class ViewerApp(T.Frame):
                     mz_adr = "{:04X}:".format(line_adr + self.mz_from - 128)
 
                     for x, asc in enumerate(bytes(mz_adr, "ascii")):
-                        # draw MZ char, regardless of var_ascii and alt_charset
+                        # draw MZ char, regardless of asc_code and alt_charset
                         self.c_mz_dump.create_image(q * x, q * j,
                                                     image=self.charset
                                                     [self.asc_to_disp[asc]],
@@ -456,9 +477,9 @@ class ViewerApp(T.Frame):
             else:
                 break
 
-            # draw MZ char according to var_ascii and alt_charset
+            # draw MZ char according to asc_code and alt_charset
             byte = (self.asc_to_disp[byte]
-                    if self.var_ascii.get() else byte)
+                    if self.asc_code.get() else byte)
             if self.alt_charset.get():
                 byte += 256
             tag = "item{}".format(index)
