@@ -11,6 +11,7 @@
 #                    s_   ...  Scale widget
 
 
+import itertools
 import os
 import sys
 import tkinter as T
@@ -206,7 +207,7 @@ class ViewerApp(T.Frame):
 
         self.c_bmp = T.Canvas(f_bitmap, background=constants.GREEN_BLUE,
                               highlightthickness=0)
-        self.c_bmp.grid(rowspan=15, padx=10, pady=13)
+        self.c_bmp.grid(column=3, rowspan=15, padx=10, pady=13)
 
         l_bitmap_columns = T.Label(f_bitmap, text="Columns:")
         l_bitmap_columns.grid(column=1, row=0, sticky="ws")
@@ -217,7 +218,7 @@ class ViewerApp(T.Frame):
         #     values are edited from keyboard
         #   - can MouseWheel events be used to control these spinboxes?
 
-        sb_bitmap_columns = T.Spinbox(f_bitmap, width=2, from_=1, to=8,
+        sb_bitmap_columns = T.Spinbox(f_bitmap, width=2, from_=1, to=32,
                                       increment=1,
                                       textvariable=self.bmp_columns,
                                       command=self.redraw_bitmap)
@@ -380,7 +381,7 @@ class ViewerApp(T.Frame):
 
         self.c_mz_dump["width"] = zoom * 13 * 8
         self.c_mz_dump["height"] = zoom * 32 * 8
-        self.c_bmp["width"] = zoom * 8 * 8
+        self.c_bmp["width"] = zoom * self.bmp_columns.get() * 8
         self.c_bmp["height"] = zoom * 32 * 8
 
     def change_zoom(self, zoom):
@@ -536,37 +537,41 @@ class ViewerApp(T.Frame):
     def redraw_bitmap(self):
         """Redraw the contents of the 'c_bmp' bitmap canvas."""
 
-        z = self.zoom.get()
+        zoom = self.zoom.get()
+        columns = self.bmp_columns.get()
+        block_height = self.bmp_block_height.get()
+
+        # cannot use self.visible_data here, as there can be more data
+        # displayed on this canvas
+        visible_data = self.file_data[self.position:][:self.bmp_displayed.get()]
+
+        # update canvas width - necessary when called by the
+        # 'sb_bitmap_columns' spinbox
+        self.c_bmp["width"] = 8 * zoom * columns
 
         self.c_bmp.delete("all")
-        row_length = int(self.bmp_columns.get())
-        block_height = int(self.bmp_block_height.get())
 
-        for j in range(int(self.bmp_displayed.get())
-                       // (row_length * block_height)):
+        for i, (row, column, k) in enumerate(itertools.product(
+                                             range(32*8 // block_height),
+                                             range(columns),
+                                             range(block_height))):
+            try:
+                byte = visible_data[i]
+            except IndexError:
+                break
 
-            for i in range(row_length):
+            # draw a single 8x1 bitmap
+            if self.bmp_flipped.get():
+                byte = self.flipped_values[byte]
+            tag = "item{}".format(i)
 
-                for k in range(block_height):
-                    index = j*row_length*block_height + i*block_height + k
-
-                    if self.file_data[self.position:][index:]:
-                        # 'visible_data' not used here, as there can be
-                        # much more data displayed on this canvas
-                        byte = self.file_data[self.position:][index]
-                    else:
-                        break
-
-                    # draw a single 8x1 bitmap
-                    if self.bmp_flipped.get():
-                        byte = self.flipped_values[byte]
-                    tag = "item{}".format(index)
-                    self.c_bmp.create_image(i * 8*z, z * (j*block_height + k),
-                                            image=self.bitmaps[byte],
-                                            activeimage=self.bitmaps_active[byte],
-                                            anchor="nw", tag=tag)
-                    self.c_bmp.tag_bind(tag, "<Enter>", self.mouse_enter)
-                    self.c_bmp.tag_bind(tag, "<Leave>", self.mouse_leave)
+            self.c_bmp.create_image(8 * zoom * column,
+                                    zoom * (row*block_height + k),
+                                    image=self.bitmaps[byte],
+                                    activeimage=self.bitmaps_active[byte],
+                                    anchor="nw", tag=tag)
+            self.c_bmp.tag_bind(tag, "<Enter>", self.mouse_enter)
+            self.c_bmp.tag_bind(tag, "<Leave>", self.mouse_leave)
 
     def close(self, *args):
         """Close the application window.
