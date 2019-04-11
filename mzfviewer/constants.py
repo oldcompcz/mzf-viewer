@@ -15,11 +15,6 @@ GREEN_BLUE = "#287070"
 ACTIVE = {"foreground": ORANGE, "background": "#000000"}
 
 
-# Misc
-
-NON_DIGITS = "_ abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-
 # Paths
 
 package_path = os.path.dirname(__file__)

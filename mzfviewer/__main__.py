@@ -495,44 +495,44 @@ class ViewerApp(T.Frame):
     def mouse_enter(self, event):
         try:
             # event caught by Canvas widget
-            current_tags = event.widget.itemconfigure("current", "tags")[4]
+            current_tags = event.widget.gettags("current")
         except AttributeError:
             # event caught by Text widget
-            current_tags = "".join(event.widget.tag_names("current"))
+            current_tags = event.widget.tag_names("current")
 
-        index = int(current_tags.strip(constants.NON_DIGITS))
+        tag = utils.get_tag(current_tags)
+        self.previous_tag = tag
+        self.previous_char = None
+        self.previous_bmp = None
 
-        if index < 256:
-            tag = "item{}".format(index)
+        if not self.c_mz_dump.gettags(tag):
+            # byte doesn't exist on c_mz_dump canvas and text widgets
+            return
 
-            self.t_hexdump.tag_configure(tag, background=constants.ORANGE)
-            self.t_pc_char.tag_configure(tag, background=constants.ORANGE)
+        self.t_hexdump.tag_configure(tag, background=constants.ORANGE)
+        self.t_pc_char.tag_configure(tag, background=constants.ORANGE)
 
-            self.previous_char = self.c_mz_dump.itemconfigure(tag,
-                                                              "image")[4]
-            active_char = self.c_mz_dump.itemconfigure(tag,
-                                                       "activeimage")[4]
-            self.c_mz_dump.itemconfigure(tag,
-                                         image=active_char)
+        if event.widget is not self.c_mz_dump:
+            self.previous_char = self.c_mz_dump.itemcget(tag, "image")
+            active_char = self.c_mz_dump.itemcget(tag, "activeimage")
+            self.c_mz_dump.itemconfigure(tag, image=active_char)
 
-            self.previous_bmp = self.c_bmp.itemconfigure(tag,
-                                                         "image")[4]
-            active_bmp = self.c_bmp.itemconfigure(tag,
-                                                  "activeimage")[4]
-            self.c_bmp.itemconfigure(tag,
-                                     image=active_bmp)
-
-            self.previous_index = index
+        if event.widget is not self.c_bmp and self.c_bmp.gettags(tag):
+            # byte exists on c_bmp canvas
+            self.previous_bmp = self.c_bmp.itemcget(tag, "image")
+            active_bmp = self.c_bmp.itemcget(tag, "activeimage")
+            self.c_bmp.itemconfigure(tag, image=active_bmp)
 
     def mouse_leave(self, event):
-        tag = "item{}".format(self.previous_index)
+        tag = self.previous_tag
 
-        self.t_hexdump.tag_configure(tag, background="")
-        self.t_pc_char.tag_configure(tag, background="")
-        self.c_mz_dump.itemconfigure(tag,
-                                     image=self.previous_char)
-        self.c_bmp.itemconfigure(tag,
-                                 image=self.previous_bmp)
+        if tag in self.t_hexdump.tag_names():
+            self.t_hexdump.tag_configure(tag, background="")
+            self.t_pc_char.tag_configure(tag, background="")
+        if self.previous_char:
+            self.c_mz_dump.itemconfigure(tag, image=self.previous_char)
+        if self.previous_bmp:
+            self.c_bmp.itemconfigure(tag, image=self.previous_bmp)
 
     def redraw_bitmap(self):
         """Redraw the contents of the 'c_bmp' bitmap canvas."""

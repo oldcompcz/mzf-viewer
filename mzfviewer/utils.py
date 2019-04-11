@@ -1,6 +1,15 @@
 import base64
+import re
 
 from mzfviewer import constants
+
+
+def get_tag(sequence_of_strings):
+    """Return first string that matches the 'item{number}' pattern."""
+
+    for tag in sequence_of_strings:
+        if re.match(r"^item\d+$", tag):
+            return tag
 
 
 def generate_cgrom():
