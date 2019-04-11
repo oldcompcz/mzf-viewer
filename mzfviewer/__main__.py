@@ -52,6 +52,14 @@ class ViewerApp(T.Frame):
                               for bitmap in utils.generate_bitmaps(3))
                      }
 
+        self.bmps_blue = {2: tuple(T.BitmapImage(data=bitmap,
+                                   foreground=constants.LITE_BLUE)
+                                   for bitmap in utils.generate_bitmaps(2)),
+                          3: tuple(T.BitmapImage(data=bitmap,
+                                   foreground=constants.LITE_BLUE)
+                                   for bitmap in utils.generate_bitmaps(3))
+                          }
+
         self.bmps_active = {2: tuple(T.BitmapImage(data=bitmap,
                                                    **constants.ACTIVE)
                                      for bitmap in utils.generate_bitmaps(2)),
@@ -205,7 +213,7 @@ class ViewerApp(T.Frame):
         f_bitmap.grid(column=10, columnspan=5, row=15, sticky="ns",
                       padx=10, pady=5)
 
-        self.c_bmp = T.Canvas(f_bitmap, background=constants.GREEN_BLUE,
+        self.c_bmp = T.Canvas(f_bitmap, background=constants.GREY_BLUE,
                               highlightthickness=0)
         self.c_bmp.grid(column=3, rowspan=15, padx=10, pady=13)
 
@@ -349,8 +357,7 @@ class ViewerApp(T.Frame):
                 self.position = len(self.file_data) - 1
 
             if self.position != old_position:
-                self.visible_data = self.file_data[self.position:
-                                                   self.position + 256]
+                self.visible_data = self.file_data[self.position:][:256]
                 self.redraw_main()
                 self.redraw_mz_chars()
                 self.redraw_bitmap()
@@ -364,11 +371,11 @@ class ViewerApp(T.Frame):
         mono_font = font.Font(name="TkFixedFont", exists=True)
 
         for size in range(zoom * 9, -zoom * 9, -1):
-            mono_font.config(size=size)
+            mono_font["size"] = size
             if mono_font.metrics()["linespace"] == zoom * 8:
                 break
         else:
-            mono_font.config(size=zoom * 5)
+            mono_font["size"] = zoom * 5
 
         self.t_adr["font"] = mono_font
         self.t_hexdump["font"] = mono_font
@@ -377,6 +384,7 @@ class ViewerApp(T.Frame):
         self.charset = self.charsets[zoom]
         self.charset_active = self.charsets_active[zoom]
         self.bitmaps = self.bmps[zoom]
+        self.bitmaps_blue = self.bmps_blue[zoom]
         self.bitmaps_active = self.bmps_active[zoom]
 
         self.c_mz_dump["width"] = zoom * 13 * 8
@@ -567,7 +575,9 @@ class ViewerApp(T.Frame):
 
             self.c_bmp.create_image(8 * zoom * column,
                                     zoom * (row*block_height + k),
-                                    image=self.bitmaps[byte],
+                                    image=(self.bitmaps[byte]
+                                           if (column + row) % 2
+                                           else self.bitmaps_blue[byte]),
                                     activeimage=self.bitmaps_active[byte],
                                     anchor="nw", tag=tag)
             self.c_bmp.tag_bind(tag, "<Enter>", self.mouse_enter)
