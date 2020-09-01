@@ -118,11 +118,23 @@ class ViewerApp(T.Frame):
         self.master.bind("<Alt-x>", self.close)
 
         # mouse events
+        #   mouse wheel on Windows
         self.t_adr.bind("<MouseWheel>", self.move)
         self.t_hexdump.bind("<MouseWheel>", self.move)
         self.t_pc_char.bind("<MouseWheel>", self.move)
         self.c_mz_dump.bind("<MouseWheel>", self.move)
         self.c_bmp.bind("<MouseWheel>", self.move)
+        #   mouse wheel on Linux
+        self.t_adr.bind("<Button-4>", self.move)
+        self.t_adr.bind("<Button-5>", self.move)
+        self.t_hexdump.bind("<Button-4>", self.move)
+        self.t_hexdump.bind("<Button-5>", self.move)
+        self.t_pc_char.bind("<Button-4>", self.move)
+        self.t_pc_char.bind("<Button-5>", self.move)
+        self.c_mz_dump.bind("<Button-4>", self.move)
+        self.c_mz_dump.bind("<Button-5>", self.move)
+        self.c_bmp.bind("<Button-4>", self.move)
+        self.c_bmp.bind("<Button-5>", self.move)
 
         # if possible, open a file from a command line argument
         if sys.argv[1:] and os.path.isfile(sys.argv[1]):
@@ -177,11 +189,6 @@ class ViewerApp(T.Frame):
 
         f_mz_dump = T.Frame(self, borderwidth=3, relief="groove")
         f_mz_dump.grid(column=5, columnspan=5, row=15, sticky="ns", pady=5)
-
-        # TODO:
-        # Canvas widgets:
-        #   - explore MouseWheel events above canvases and why it
-        #     doesn't work on Linux
 
         self.c_mz_dump = T.Canvas(f_mz_dump, background=constants.BLUE,
                                   highlightthickness=0)
@@ -344,8 +351,13 @@ class ViewerApp(T.Frame):
             if str(arg.type) in ("2", "KeyPress"):
                 arg = arg.keysym
 
+            # mouse wheel on Windows
             elif str(arg.type) in ("38", "MouseWheel"):
                 arg = "ScrollDown" if arg.delta < 0 else "ScrollUp"
+
+            # mouse wheel on Linux
+            elif arg.type == '4':
+                arg = {4: "ScrollUp", 5: "ScrollDown"}[arg.num]
 
         if self.file_data:
             old_position = self.position
