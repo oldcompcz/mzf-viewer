@@ -156,10 +156,9 @@ class ViewerApp(T.Frame):
         sc_zoom.grid(row=10, sticky="w", padx=10)
 
         # TODO:
-        # 'Open file' and 'Exit' pushbuttons:
-        #   - explore AltUnderline virtual event - can it be used in
-        #     connection with Button's 'underline' option , or is it
-        #     reserved only for menu entries?
+        #  `Open file` and `Exit` pushbuttons: Explore the AltUnderline
+        #  virtual event. Can it be used in connection with Button's
+        #  `underline` option, or is it reserved only for menu entries?
 
         b_open = T.Button(self, text="Open file...", command=self.open_file)
         b_open.grid(column=3, row=10, sticky="e", padx=5, pady=10)
@@ -228,10 +227,10 @@ class ViewerApp(T.Frame):
         l_bitmap_columns.grid(column=1, row=0, sticky="ws")
 
         # TODO:
-        # 'Columns' and 'Block height' spinboxes:
-        #   - explore spinbox value validation and how to use it when
-        #     values are edited from keyboard
-        #   - can MouseWheel events be used to control these spinboxes?
+        #  `Columns` and `Block height` spinboxes: Explore spinbox
+        #  value validation and how to use it when values are edited
+        #  from keyboard. Can MouseWheel events be used to control
+        #  these spinboxes?
 
         sb_bitmap_columns = T.Spinbox(f_bitmap, width=2, from_=1, to=32,
                                       increment=1,
@@ -252,9 +251,8 @@ class ViewerApp(T.Frame):
         l_disp.grid(column=1, row=2, sticky="nw")
 
         # TODO:
-        # 'Bytes displayed' widget:
-        #   - change to a roll-down list? (only 8 possible values,
-        #     which is acceptable)
+        #  `Bytes displayed` widget: Change to a roll-down list?
+        #  (currently only 8 possible values)
 
         sb_disp = T.Spinbox(f_bitmap, width=4, from_=256, to=2048,
                             increment=256, textvariable=self.bmp_displayed,
