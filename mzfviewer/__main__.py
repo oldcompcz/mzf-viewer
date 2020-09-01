@@ -11,6 +11,7 @@
 #                    s_   ...  Scale widget
 
 
+from collections import defaultdict
 import itertools
 import os
 import sys
@@ -27,6 +28,8 @@ class ViewerApp(T.Frame):
 
         super().__init__(master)
         self.pack()
+
+        self.fn_id_cache = defaultdict(lambda: {'<Enter>': [], '<Leave>': []})
 
         self.charsets = {2: tuple(T.BitmapImage(data=bitmap,
                                                 foreground=constants.WHITE)
@@ -427,6 +430,28 @@ class ViewerApp(T.Frame):
         self.t_pc_char.tag_delete(*self.text_tags)
         self.text_tags.clear()
 
+        widget = self.t_hexdump
+        # todo: function `unbind_mouse_events`
+        if self.fn_id_cache[widget]['<Enter>']:
+            for fnid in self.fn_id_cache[widget]['<Enter>']:
+                widget.tag_unbind("all", "<Enter>", fnid)
+            self.fn_id_cache[widget]['<Enter>'].clear()
+        if self.fn_id_cache[widget]['<Leave>']:
+            for fnid in self.fn_id_cache[widget]['<Leave>']:
+                widget.tag_unbind("all", "<Leave>", fnid)
+            self.fn_id_cache[widget]['<Leave>'].clear()
+
+        widget = self.t_pc_char
+        # todo: function `unbind_mouse_events`
+        if self.fn_id_cache[widget]['<Enter>']:
+            for fnid in self.fn_id_cache[widget]['<Enter>']:
+                widget.tag_unbind("all", "<Enter>", fnid)
+            self.fn_id_cache[widget]['<Enter>'].clear()
+        if self.fn_id_cache[widget]['<Leave>']:
+            for fnid in self.fn_id_cache[widget]['<Leave>']:
+                widget.tag_unbind("all", "<Leave>", fnid)
+            self.fn_id_cache[widget]['<Leave>'].clear()
+
         self.c_mz_dump.delete("all")
 
         for j in range(32):
@@ -457,10 +482,23 @@ class ViewerApp(T.Frame):
                                       chr(byte) if 31 < byte < 127 else " ",
                                       tag)
 
-                self.t_hexdump.tag_bind(tag, "<Enter>", self.mouse_enter)
-                self.t_hexdump.tag_bind(tag, "<Leave>", self.mouse_leave)
-                self.t_pc_char.tag_bind(tag, "<Enter>", self.mouse_enter)
-                self.t_pc_char.tag_bind(tag, "<Leave>", self.mouse_leave)
+                widget = self.t_hexdump
+                # todo: function `bind_mouse_events`
+                self.fn_id_cache[widget]['<Enter>'].append(
+                    widget.tag_bind(tag, "<Enter>", self.mouse_enter)
+                )
+                self.fn_id_cache[widget]['<Leave>'].append(
+                    widget.tag_bind(tag, "<Leave>", self.mouse_leave)
+                )
+
+                widget = self.t_pc_char
+                # todo: function `bind_mouse_events`
+                self.fn_id_cache[widget]['<Enter>'].append(
+                    widget.tag_bind(tag, "<Enter>", self.mouse_enter)
+                )
+                self.fn_id_cache[widget]['<Leave>'].append(
+                    widget.tag_bind(tag, "<Leave>", self.mouse_leave)
+                )
 
             if not line_empty:
                 line_adr = self.position + j*8
@@ -490,6 +528,17 @@ class ViewerApp(T.Frame):
 
         self.c_mz_dump.delete("chr")
 
+        widget = self.c_mz_dump
+        # todo: function `unbind_mouse_events`
+        if self.fn_id_cache[widget]['<Enter>']:
+            for fnid in self.fn_id_cache[widget]['<Enter>']:
+                widget.tag_unbind("all", "<Enter>", fnid)
+            self.fn_id_cache[widget]['<Enter>'].clear()
+        if self.fn_id_cache[widget]['<Leave>']:
+            for fnid in self.fn_id_cache[widget]['<Leave>']:
+                widget.tag_unbind("all", "<Leave>", fnid)
+            self.fn_id_cache[widget]['<Leave>'].clear()
+
         for index in range(256):
             if self.visible_data[index:]:
                 byte = self.visible_data[index]
@@ -507,8 +556,15 @@ class ViewerApp(T.Frame):
                                         activeimage=self.charset_active[byte],
                                         anchor="nw",
                                         tags="{} chr".format(tag))
-            self.c_mz_dump.tag_bind(tag, "<Enter>", self.mouse_enter)
-            self.c_mz_dump.tag_bind(tag, "<Leave>", self.mouse_leave)
+
+            widget = self.c_mz_dump
+            # todo: function `bind_mouse_events`
+            self.fn_id_cache[widget]['<Enter>'].append(
+                widget.tag_bind(tag, "<Enter>", self.mouse_enter)
+            )
+            self.fn_id_cache[widget]['<Leave>'].append(
+                widget.tag_bind(tag, "<Leave>", self.mouse_leave)
+            )
 
     def mouse_enter(self, event):
         try:
@@ -569,6 +625,17 @@ class ViewerApp(T.Frame):
 
         self.c_bmp.delete("all")
 
+        widget = self.c_bmp
+        # todo: function `unbind_mouse_events`
+        if self.fn_id_cache[widget]['<Enter>']:
+            for fnid in self.fn_id_cache[widget]['<Enter>']:
+                widget.tag_unbind("all", "<Enter>", fnid)
+            self.fn_id_cache[widget]['<Enter>'].clear()
+        if self.fn_id_cache[widget]['<Leave>']:
+            for fnid in self.fn_id_cache[widget]['<Leave>']:
+                widget.tag_unbind("all", "<Leave>", fnid)
+            self.fn_id_cache[widget]['<Leave>'].clear()
+
         for i, (row, column, k) in enumerate(itertools.product(
                                              range(32*8 // block_height),
                                              range(columns),
@@ -590,8 +657,15 @@ class ViewerApp(T.Frame):
                                            else self.bitmaps_blue[byte]),
                                     activeimage=self.bitmaps_active[byte],
                                     anchor="nw", tag=tag)
-            self.c_bmp.tag_bind(tag, "<Enter>", self.mouse_enter)
-            self.c_bmp.tag_bind(tag, "<Leave>", self.mouse_leave)
+
+            widget = self.c_bmp
+            # todo: function `bind_mouse_events`
+            self.fn_id_cache[widget]['<Enter>'].append(
+                widget.tag_bind(tag, "<Enter>", self.mouse_enter)
+            )
+            self.fn_id_cache[widget]['<Leave>'].append(
+                widget.tag_bind(tag, "<Leave>", self.mouse_leave)
+            )
 
     def close(self, *args):
         """Close the application window.
