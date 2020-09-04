@@ -29,8 +29,6 @@ class ViewerApp(T.Frame):
         super().__init__(master)
         self.pack()
 
-        self.fn_id_cache = defaultdict(lambda: {'<Enter>': {}, '<Leave>': {}})
-
         self.charsets = {2: tuple(T.BitmapImage(data=bitmap,
                                                 foreground=constants.WHITE)
                                   for bitmap in utils.generate_charset(2)),
@@ -73,7 +71,7 @@ class ViewerApp(T.Frame):
 
         self.flipped_values = tuple(utils.generate_flipped())
         self.asc_to_disp = utils.generate_asc_to_disp()
-        self.text_tags = ["dummy"]
+        self.fn_id_cache = defaultdict(lambda: {'<Enter>': {}, '<Leave>': {}})
 
         # variables to be directly connected with widgets
         self.zoom = T.IntVar()
@@ -138,6 +136,8 @@ class ViewerApp(T.Frame):
         self.c_mz_dump.bind("<Button-5>", self.move)
         self.c_bmp.bind("<Button-4>", self.move)
         self.c_bmp.bind("<Button-5>", self.move)
+        # mouse over and out events
+        self.bind_mouse_to_canvas_tags()
 
         # if possible, open a file from a command line argument
         if sys.argv[1:] and os.path.isfile(sys.argv[1]):
@@ -424,11 +424,10 @@ class ViewerApp(T.Frame):
         self.t_adr.delete("1.0", "end")
         self.t_hexdump["state"] = "normal"
         self.t_hexdump.delete("1.0", "end")
-        self.t_hexdump.tag_delete(*self.text_tags)
+        self.t_hexdump.tag_delete(*self.t_hexdump.tag_names())
         self.t_pc_char["state"] = "normal"
         self.t_pc_char.delete("1.0", "end")
-        self.t_pc_char.tag_delete(*self.text_tags)
-        self.text_tags.clear()
+        self.t_pc_char.tag_delete(*self.t_pc_char.tag_names())
 
         self.c_mz_dump.delete("all")
 
@@ -451,7 +450,6 @@ class ViewerApp(T.Frame):
                                                     width=0)
 
                 tag = "item{}".format(index)
-                self.text_tags.append(tag)
                 self.t_hexdump.insert("end", "{:02X}".format(byte), tag)
                 if i < 7:
                     self.t_hexdump.insert("end", " ")
@@ -460,8 +458,8 @@ class ViewerApp(T.Frame):
                                       chr(byte) if 31 < byte < 127 else " ",
                                       tag)
 
-                self.rebind_mouse_events(self.t_hexdump, tag)
-                self.rebind_mouse_events(self.t_pc_char, tag)
+                self.rebind_mouse_to_text_tag(self.t_hexdump, tag)
+                self.rebind_mouse_to_text_tag(self.t_pc_char, tag)
 
             if not line_empty:
                 line_adr = self.position + j*8
@@ -509,8 +507,6 @@ class ViewerApp(T.Frame):
                                         anchor="nw",
                                         tags="{} chr".format(tag))
 
-            self.bind_mouse_events(self.c_mz_dump, tag)
-
     def redraw_bitmap(self):
         """Redraw the contents of the 'c_bmp' bitmap canvas."""
 
@@ -549,8 +545,6 @@ class ViewerApp(T.Frame):
                                            else self.bitmaps_blue[byte]),
                                     activeimage=self.bitmaps_active[byte],
                                     anchor="nw", tag=tag)
-
-            self.bind_mouse_events(self.c_bmp, tag)
 
     def mouse_enter(self, event):
         try:
@@ -594,16 +588,7 @@ class ViewerApp(T.Frame):
         if self.previous_bmp:
             self.c_bmp.itemconfigure(tag, image=self.previous_bmp)
 
-    def bind_mouse_events(self, widget, tag):
-        cache = self.fn_id_cache[widget]['<Enter>']
-        if tag not in cache:
-            cache[tag] = widget.tag_bind(tag, '<Enter>', self.mouse_enter)
-
-        cache = self.fn_id_cache[widget]['<Leave>']
-        if tag not in cache:
-            cache[tag] = widget.tag_bind(tag, '<Leave>', self.mouse_leave)
-
-    def rebind_mouse_events(self, widget, tag):
+    def rebind_mouse_to_text_tag(self, widget, tag):
         cache = self.fn_id_cache[widget]['<Enter>']
         if tag in cache:
             widget.tag_unbind(tag, '<Enter>', cache[tag])
@@ -613,6 +598,13 @@ class ViewerApp(T.Frame):
         if tag in cache:
             widget.tag_unbind(tag, '<Leave>', cache[tag])
         cache[tag] = widget.tag_bind(tag, '<Leave>', self.mouse_leave)
+
+    def bind_mouse_to_canvas_tags(self):
+        for i in range(256):
+            tag = f'item{i}'
+            for widget in (self.c_mz_dump, self.c_bmp):
+                widget.tag_bind(tag, '<Enter>', self.mouse_enter)
+                widget.tag_bind(tag, '<Leave>', self.mouse_leave)
 
     def close(self, *args):
         """Close the application window.
