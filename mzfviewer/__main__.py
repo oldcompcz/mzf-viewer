@@ -25,7 +25,6 @@ from mzfviewer import utils
 
 class ViewerApp(T.Frame):
     def __init__(self, master):
-
         super().__init__(master)
         self.pack()
 
@@ -118,14 +117,13 @@ class ViewerApp(T.Frame):
 
         self.master.bind("<Alt-x>", self.close)
 
-        # mouse events
-        #   mouse wheel on Windows
+        # mouse wheel events (Windows)
         self.t_adr.bind("<MouseWheel>", self.move)
         self.t_hexdump.bind("<MouseWheel>", self.move)
         self.t_pc_char.bind("<MouseWheel>", self.move)
         self.c_mz_dump.bind("<MouseWheel>", self.move)
         self.c_bmp.bind("<MouseWheel>", self.move)
-        #   mouse wheel on Linux
+        # mouse wheel events (Linux)
         self.t_adr.bind("<Button-4>", self.move)
         self.t_adr.bind("<Button-5>", self.move)
         self.t_hexdump.bind("<Button-4>", self.move)
@@ -153,10 +151,10 @@ class ViewerApp(T.Frame):
 
         # First row of widgets
 
-        sc_zoom = T.Scale(self, label="Zoom:", orient='horizontal',
-                          from_=2, to=3, showvalue=False,
-                          variable=self.zoom, command=self.change_zoom)
-        sc_zoom.grid(row=10, sticky="w", padx=10)
+        s_zoom = T.Scale(self, label="Zoom:", orient='horizontal',
+                         length=60, from_=2, to=3, showvalue=False,
+                         variable=self.zoom, command=self.change_zoom)
+        s_zoom.grid(row=10, sticky="w", padx=10)
 
         # TODO:
         #  `Open file` and `Exit` pushbuttons: Explore the AltUnderline
@@ -417,7 +415,6 @@ class ViewerApp(T.Frame):
         widgets, and redraw addresses and header highlight on the 'c_mz_dump'
         canvas.
         """
-
         q = 8 * self.zoom.get()
 
         self.t_adr["state"] = "normal"
