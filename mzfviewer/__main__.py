@@ -135,7 +135,8 @@ class ViewerApp(T.Frame):
         self.c_bmp.bind("<Button-4>", self.move)
         self.c_bmp.bind("<Button-5>", self.move)
         # mouse over and out events
-        self.bind_mouse_to_canvas_tags()
+        self.bind_mouse_to_canvas_tags(self.c_mz_dump)
+        self.bind_mouse_to_canvas_tags(self.c_bmp)
 
         # if possible, open a file from a command line argument
         if sys.argv[1:] and os.path.isfile(sys.argv[1]):
@@ -592,12 +593,11 @@ class ViewerApp(T.Frame):
             widget.tag_unbind(tag, '<Leave>', cache[tag])
         cache[tag] = widget.tag_bind(tag, '<Leave>', self.mouse_leave)
 
-    def bind_mouse_to_canvas_tags(self):
+    def bind_mouse_to_canvas_tags(self, widget):
         for i in range(256):
             tag = f'item{i}'
-            for widget in (self.c_mz_dump, self.c_bmp):
-                widget.tag_bind(tag, '<Enter>', self.mouse_enter)
-                widget.tag_bind(tag, '<Leave>', self.mouse_leave)
+            widget.tag_bind(tag, '<Enter>', self.mouse_enter)
+            widget.tag_bind(tag, '<Leave>', self.mouse_leave)
 
     def close(self, *args):
         """Close the application window.
