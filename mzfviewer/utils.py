@@ -13,10 +13,10 @@ def get_tag(sequence_of_strings):
 
 
 def generate_cgrom():
-    """Generate a sequence of 8-byte chunks representing chars of the original
-    Sharp MZ font.
-    """
+    """Generate a sequence representing the original Sharp MZ font.
 
+    Each yielded item is an 8-tuple of 0-255 integers.
+    """
     itr = iter(base64.b64decode(constants.CG_ROM))
 
     for chunk in zip(*[itr]*8):
@@ -27,7 +27,6 @@ def generate_charset(zoom):
     """Generate the original Sharp MZ font as a sequence of 16x16px or 24x24px
     bitmaps, in the format required by the tkinter.BitmapImage constructor.
     """
-
     format_string = """#define byte{n}_width {w}
 #define byte{n}_height {w}
 static unsigned char byte{n}_bits[] = {{ {data} }}"""
@@ -47,15 +46,13 @@ def generate_asc_to_disp():
     """Return a byte sequence serving as conversion table from ascii code
     to display (video-RAM) code.
     """
-
     return base64.b64decode(constants.ASC_TO_DISP)
 
 
 def generate_bitmaps(zoom):
     """Generate a sequence of 16x2px or 24x3px bitmaps, in the format required
-    by the tkinter.BitmapImage contructor.
+    by the tkinter.BitmapImage constructor.
     """
-
     format_string = """#define byte{n}_width {w}
 #define byte{n}_height {h}
 static unsigned char byte{n}_bits[] = {{ {data} }}"""
@@ -79,7 +76,6 @@ def zoomed(byte, zoom):
 
     'zoom' must be 2 or 3.
     """
-
     zoomed_bits = {2: (3, 12, 48, 192, 768, 3072, 12288, 49152),
                    3: (7, 56, 448, 3584,
                        28672, 229376, 1835008, 14680064)}[zoom]
