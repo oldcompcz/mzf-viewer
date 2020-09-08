@@ -24,49 +24,53 @@ from mzfviewer import utils
 
 
 class ViewerApp(T.Frame):
-    def __init__(self, master):
+    def __init__(self, master=None):
         super().__init__(master)
         self.pack()
 
-        self.charsets = {2: tuple(T.BitmapImage(data=bitmap,
-                                                foreground=constants.WHITE)
-                                  for bitmap in utils.generate_charset(2)),
-                         3: tuple(T.BitmapImage(data=bitmap,
-                                                foreground=constants.WHITE)
-                                  for bitmap in utils.generate_charset(3))
-                         }
+        cgrom = tuple(utils.generate_cgrom())
+        zoomed_cache_2 = {}
+        zoomed_cache_3 = {}
 
-        self.charsets_active = {2: tuple(T.BitmapImage(data=bitmap,
-                                         **constants.ACTIVE)
-                                         for bitmap in utils.generate_charset(2)),
-                                3: tuple(T.BitmapImage(data=bitmap,
-                                                       **constants.ACTIVE)
-                                         for bitmap in utils.generate_charset(3))
-                                }
+        charset_zoom_2 = tuple(utils.generate_charset(cgrom, 2,
+                                                      cache=zoomed_cache_2))
+        charset_zoom_3 = tuple(utils.generate_charset(cgrom, 3,
+                                                      cache=zoomed_cache_3))
 
-        self.bmps = {2: tuple(T.BitmapImage(data=bitmap,
-                                            foreground=constants.WHITE)
-                              for bitmap in utils.generate_bitmaps(2)),
-                     3: tuple(T.BitmapImage(data=bitmap,
-                                            foreground=constants.WHITE)
-                              for bitmap in utils.generate_bitmaps(3))
-                     }
+        self.charsets = {
+            2: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)
+                     for bitmap in charset_zoom_2),
+            3: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)
+                     for bitmap in charset_zoom_3),
+        }
+        self.charsets_active = {
+            2: tuple(T.BitmapImage(data=bitmap, **constants.ACTIVE)
+                     for bitmap in charset_zoom_2),
+            3: tuple(T.BitmapImage(data=bitmap, **constants.ACTIVE)
+                     for bitmap in charset_zoom_3),
+        }
 
-        self.bmps_blue = {2: tuple(T.BitmapImage(data=bitmap,
-                                   foreground=constants.LITE_BLUE)
-                                   for bitmap in utils.generate_bitmaps(2)),
-                          3: tuple(T.BitmapImage(data=bitmap,
-                                   foreground=constants.LITE_BLUE)
-                                   for bitmap in utils.generate_bitmaps(3))
-                          }
+        bitmaps_zoom_2 = tuple(utils.generate_bitmaps(2, cache=zoomed_cache_2))
+        bitmaps_zoom_3 = tuple(utils.generate_bitmaps(3, cache=zoomed_cache_3))
 
-        self.bmps_active = {2: tuple(T.BitmapImage(data=bitmap,
-                                                   **constants.ACTIVE)
-                                     for bitmap in utils.generate_bitmaps(2)),
-                            3: tuple(T.BitmapImage(data=bitmap,
-                                                   **constants.ACTIVE)
-                                     for bitmap in utils.generate_bitmaps(3))
-                            }
+        self.bmps = {
+            2: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)
+                     for bitmap in bitmaps_zoom_2),
+            3: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)
+                     for bitmap in bitmaps_zoom_3)
+        }
+        self.bmps_blue = {
+            2: tuple(T.BitmapImage(data=bitmap, foreground=constants.LITE_BLUE)
+                     for bitmap in bitmaps_zoom_2),
+            3: tuple(T.BitmapImage(data=bitmap, foreground=constants.LITE_BLUE)
+                     for bitmap in bitmaps_zoom_3)
+        }
+        self.bmps_active = {
+            2: tuple(T.BitmapImage(data=bitmap, **constants.ACTIVE)
+                     for bitmap in bitmaps_zoom_2),
+            3: tuple(T.BitmapImage(data=bitmap, **constants.ACTIVE)
+                     for bitmap in bitmaps_zoom_3)
+        }
 
         self.flipped_values = tuple(utils.generate_flipped())
         self.asc_to_disp = utils.generate_asc_to_disp()

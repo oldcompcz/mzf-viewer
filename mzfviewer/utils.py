@@ -23,7 +23,7 @@ def generate_cgrom():
         yield chunk
 
 
-def generate_charset(zoom):
+def generate_charset(cgrom, zoom, cache: dict):
     """Generate the original Sharp MZ font as a sequence of 16x16px or 24x24px
     bitmaps, in the format required by the tkinter.BitmapImage constructor.
     """
@@ -31,11 +31,17 @@ def generate_charset(zoom):
 #define byte{n}_height {w}
 static unsigned char byte{n}_bits[] = {{ {data} }}"""
 
-    for i, chunk in enumerate(generate_cgrom()):
+    for i, chunk in enumerate(cgrom):
         hex_strings = []
 
         for byte in chunk:
-            hex_strings.extend([hex(i) for i in zoomed(byte, zoom)])
+            try:
+                zoomed_value = cache[byte]
+            except KeyError:
+                zoomed_value = zoomed(byte, zoom)
+                cache[byte] = zoomed_value
+
+            hex_strings.extend(hex(i) for i in zoomed_value)
 
         joined_hex = ",".join(hex_strings)
 
@@ -49,7 +55,7 @@ def generate_asc_to_disp():
     return base64.b64decode(constants.ASC_TO_DISP)
 
 
-def generate_bitmaps(zoom):
+def generate_bitmaps(zoom, cache: dict):
     """Generate a sequence of 16x2px or 24x3px bitmaps, in the format required
     by the tkinter.BitmapImage constructor.
     """
@@ -58,7 +64,13 @@ def generate_bitmaps(zoom):
 static unsigned char byte{n}_bits[] = {{ {data} }}"""
 
     for i in range(256):
-        joined_hex = ",".join([hex(i) for i in zoomed(i, zoom)])
+        try:
+            zoomed_value = cache[i]
+        except KeyError:
+            zoomed_value = zoomed(i, zoom)
+            cache[i] = zoomed_value
+
+        joined_hex = ",".join(hex(i) for i in zoomed_value)
 
         yield format_string.format(n=i, w=8*zoom, h=zoom, data=joined_hex)
 
