@@ -556,10 +556,6 @@ class ViewerApp(T.Frame):
         self.previous_char = None
         self.previous_bmp = None
 
-        if not self.c_mz_dump.gettags(tag):
-            # byte doesn't exist on c_mz_dump canvas and text widgets
-            return
-
         self.t_hexdump.tag_configure(tag, background=constants.ORANGE)
         self.t_pc_char.tag_configure(tag, background=constants.ORANGE)
 
