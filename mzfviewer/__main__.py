@@ -29,13 +29,9 @@ class ViewerApp(T.Frame):
         self.pack()
 
         cgrom = tuple(utils.generate_cgrom())
-        zoomed_cache_2 = {}
-        zoomed_cache_3 = {}
 
-        charset_zoom_2 = tuple(utils.generate_charset(cgrom, 2,
-                                                      cache=zoomed_cache_2))
-        charset_zoom_3 = tuple(utils.generate_charset(cgrom, 3,
-                                                      cache=zoomed_cache_3))
+        charset_zoom_2 = tuple(utils.generate_charset(cgrom, 2))
+        charset_zoom_3 = tuple(utils.generate_charset(cgrom, 3))
 
         self.charsets = {
             2: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)
@@ -50,8 +46,8 @@ class ViewerApp(T.Frame):
                      for bitmap in charset_zoom_3),
         }
 
-        bitmaps_zoom_2 = tuple(utils.generate_bitmaps(2, cache=zoomed_cache_2))
-        bitmaps_zoom_3 = tuple(utils.generate_bitmaps(3, cache=zoomed_cache_3))
+        bitmaps_zoom_2 = tuple(utils.generate_bitmaps(2))
+        bitmaps_zoom_3 = tuple(utils.generate_bitmaps(3))
 
         self.bmps = {
             2: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)

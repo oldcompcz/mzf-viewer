@@ -1,5 +1,6 @@
 import base64
 import re
+from functools import lru_cache
 
 from mzfviewer import constants
 
@@ -23,7 +24,7 @@ def generate_cgrom():
         yield chunk
 
 
-def generate_charset(cgrom, zoom, cache: dict):
+def generate_charset(cgrom, zoom):
     """Generate the original Sharp MZ font as a sequence of 16x16px or 24x24px
     bitmaps, in the format required by the tkinter.BitmapImage constructor.
     """
@@ -35,13 +36,7 @@ static unsigned char byte{n}_bits[] = {{ {data} }}"""
         hex_strings = []
 
         for byte in chunk:
-            try:
-                zoomed_value = cache[byte]
-            except KeyError:
-                zoomed_value = zoomed(byte, zoom)
-                cache[byte] = zoomed_value
-
-            hex_strings.extend(hex(i) for i in zoomed_value)
+            hex_strings.extend(hex(i) for i in zoomed(byte, zoom))
 
         joined_hex = ",".join(hex_strings)
 
@@ -55,7 +50,7 @@ def generate_asc_to_disp():
     return base64.b64decode(constants.ASC_TO_DISP)
 
 
-def generate_bitmaps(zoom, cache: dict):
+def generate_bitmaps(zoom):
     """Generate a sequence of 16x2px or 24x3px bitmaps, in the format required
     by the tkinter.BitmapImage constructor.
     """
@@ -64,13 +59,7 @@ def generate_bitmaps(zoom, cache: dict):
 static unsigned char byte{n}_bits[] = {{ {data} }}"""
 
     for i in range(256):
-        try:
-            zoomed_value = cache[i]
-        except KeyError:
-            zoomed_value = zoomed(i, zoom)
-            cache[i] = zoomed_value
-
-        joined_hex = ",".join(hex(i) for i in zoomed_value)
+        joined_hex = ",".join(hex(i) for i in zoomed(i, zoom))
 
         yield format_string.format(n=i, w=8*zoom, h=zoom, data=joined_hex)
 
@@ -83,6 +72,7 @@ def generate_flipped():
         yield int(bin_string_reversed, 2)
 
 
+@lru_cache(maxsize=512)
 def zoomed(byte, zoom):
     """Return a sequence of bytes that represent a "bitwise zoom" of 'byte'.
 

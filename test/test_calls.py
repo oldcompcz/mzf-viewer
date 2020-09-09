@@ -38,8 +38,8 @@ def test_generate_bitmaps_call_count_and_args(generate_bitmaps_mock: Mock):
        side_effect=lambda byte, zoom: b' ' * zoom**2)
 def test_zoomed_call_count_and_args(zoomed_mock: Mock):
     ViewerApp()
-    assert zoomed_mock.call_count == 512
+    assert zoomed_mock.call_count == 512*8*2 + 256*2
 
     # test all combinations of `byte` and `zoom` parameters
-    assert sorted(a.args[:2] for a in zoomed_mock.call_args_list) \
-           == sorted((n, zoom) for n in range(256) for zoom in (2, 3))
+    assert set(a.args[:2] for a in zoomed_mock.call_args_list) \
+           == set((n, zoom) for n in range(256) for zoom in (2, 3))
