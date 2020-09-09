@@ -16,7 +16,7 @@ static unsigned char byte0_bits[] = { 0x0 }'''
 
 @patch('mzfviewer.__main__.utils.generate_charset',
        return_value=[bitmap_dummy] * 512)
-def test_generate_charset_called_twice(generate_charset_mock: Mock):
+def test_generate_charset_call_count_and_args(generate_charset_mock: Mock):
     ViewerApp()
     assert generate_charset_mock.call_count == 2
 
@@ -26,7 +26,7 @@ def test_generate_charset_called_twice(generate_charset_mock: Mock):
 
 @patch('mzfviewer.__main__.utils.generate_bitmaps',
        return_value=[bitmap_dummy] * 256)
-def test_generate_bitmaps_called_twice(generate_bitmaps_mock: Mock):
+def test_generate_bitmaps_call_count_and_args(generate_bitmaps_mock: Mock):
     ViewerApp()
     assert generate_bitmaps_mock.call_count == 2
 
@@ -36,7 +36,7 @@ def test_generate_bitmaps_called_twice(generate_bitmaps_mock: Mock):
 
 @patch('mzfviewer.__main__.utils.zoomed',
        side_effect=lambda byte, zoom: b' ' * zoom**2)
-def test_zoomed_called_512_times(zoomed_mock: Mock):
+def test_zoomed_call_count_and_args(zoomed_mock: Mock):
     ViewerApp()
     assert zoomed_mock.call_count == 512
 
