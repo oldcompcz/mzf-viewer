@@ -14,6 +14,7 @@
 from collections import defaultdict
 import itertools
 import os
+import pickle
 import sys
 import tkinter as T
 from tkinter import filedialog
@@ -28,10 +29,10 @@ class ViewerApp(T.Frame):
         super().__init__(master)
         self.pack()
 
-        cgrom = tuple(utils.generate_cgrom())
-
-        charset_zoom_2 = tuple(utils.generate_charset(cgrom, 2))
-        charset_zoom_3 = tuple(utils.generate_charset(cgrom, 3))
+        with open(constants.DATA_DIR / 'charset_zoom_2.pickle', 'rb') as f:
+            charset_zoom_2 = pickle.load(f)
+        with open(constants.DATA_DIR / 'charset_zoom_3.pickle', 'rb') as f:
+            charset_zoom_3 = pickle.load(f)
 
         self.charsets = {
             2: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)
@@ -46,8 +47,10 @@ class ViewerApp(T.Frame):
                      for bitmap in charset_zoom_3),
         }
 
-        bitmaps_zoom_2 = tuple(utils.generate_bitmaps(2))
-        bitmaps_zoom_3 = tuple(utils.generate_bitmaps(3))
+        with open(constants.DATA_DIR / 'bitmaps_zoom_2.pickle', 'rb') as f:
+            bitmaps_zoom_2 = pickle.load(f)
+        with open(constants.DATA_DIR / 'bitmaps_zoom_3.pickle', 'rb') as f:
+            bitmaps_zoom_3 = pickle.load(f)
 
         self.bmps = {
             2: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)

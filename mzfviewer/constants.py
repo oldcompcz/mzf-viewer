@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 
 # Colors
@@ -18,6 +19,8 @@ ACTIVE = {"foreground": ORANGE, "background": "#000000"}
 # Paths
 
 package_path = os.path.dirname(__file__)
+
+DATA_DIR = Path(__file__).parent / 'data'
 
 ICON_CHARLEFT = os.path.join(package_path, 'icons/charleft.png')
 ICON_LINEUP = os.path.join(package_path, 'icons/lineup.png')

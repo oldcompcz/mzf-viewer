@@ -1,6 +1,7 @@
 import base64
-import re
 from functools import lru_cache
+import pickle
+import re
 
 from mzfviewer import constants
 
@@ -88,3 +89,27 @@ def zoomed(byte, zoom):
                  if byte & bit)
 
     return result.to_bytes(zoom, "little") * zoom
+
+
+def generate_and_pickle_data():
+    cgrom = tuple(generate_cgrom())
+
+    charset_zoom_2 = tuple(generate_charset(cgrom, 2))
+    with open(constants.DATA_DIR / 'charset_zoom_2.pickle', 'wb') as f:
+        pickle.dump(charset_zoom_2, f)
+
+    charset_zoom_3 = tuple(generate_charset(cgrom, 3))
+    with open(constants.DATA_DIR / 'charset_zoom_3.pickle', 'wb') as f:
+        pickle.dump(charset_zoom_3, f)
+
+    bitmaps_zoom_2 = tuple(generate_bitmaps(2))
+    with open(constants.DATA_DIR / 'bitmaps_zoom_2.pickle', 'wb') as f:
+        pickle.dump(bitmaps_zoom_2, f)
+
+    bitmaps_zoom_3 = tuple(generate_bitmaps(3))
+    with open(constants.DATA_DIR / 'bitmaps_zoom_3.pickle', 'wb') as f:
+        pickle.dump(bitmaps_zoom_3, f)
+
+
+if __name__ == '__main__':
+    generate_and_pickle_data()
