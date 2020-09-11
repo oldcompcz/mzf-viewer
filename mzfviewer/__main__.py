@@ -13,7 +13,7 @@
 
 from collections import defaultdict
 import itertools
-import os
+from pathlib import Path
 import pickle
 import sys
 import tkinter as T
@@ -142,7 +142,7 @@ class ViewerApp(T.Frame):
         self.bind_mouse_to_canvas_tags(self.c_bmp)
 
         # if possible, open a file from a command line argument
-        if sys.argv[1:] and os.path.isfile(sys.argv[1]):
+        if sys.argv[1:] and Path(sys.argv[1]).is_file():
             self.open_file(sys.argv[1])
         else:
             self.filename.set("[no file]")
@@ -330,7 +330,7 @@ class ViewerApp(T.Frame):
 
         if filename:
             self.filename.set(filename)
-            self.open_dir = os.path.dirname(os.path.abspath(filename))
+            self.open_dir = Path(filename).resolve().parent
 
             with open(filename, "rb") as f:
                 self.file_data = f.read()

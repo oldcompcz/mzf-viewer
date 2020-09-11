@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 
@@ -18,18 +17,18 @@ ACTIVE = {"foreground": ORANGE, "background": "#000000"}
 
 # Paths
 
-package_path = os.path.dirname(__file__)
+PACKAGE_DIR = Path(__file__).parent
+DATA_DIR = PACKAGE_DIR / 'data'
+ICON_DIR = PACKAGE_DIR / 'icons'
 
-DATA_DIR = Path(__file__).parent / 'data'
-
-ICON_CHARLEFT = os.path.join(package_path, 'icons/charleft.png')
-ICON_LINEUP = os.path.join(package_path, 'icons/lineup.png')
-ICON_PAGEUP = os.path.join(package_path, 'icons/pageup.png')
-ICON_HOME = os.path.join(package_path, 'icons/home.png')
-ICON_END = os.path.join(package_path, 'icons/end.png')
-ICON_PAGEDOWN = os.path.join(package_path, 'icons/pagedown.png')
-ICON_LINEDOWN = os.path.join(package_path, 'icons/linedown.png')
-ICON_CHARRIGHT = os.path.join(package_path, 'icons/charright.png')
+ICON_CHARLEFT = ICON_DIR / 'charleft.png'
+ICON_LINEUP = ICON_DIR / 'lineup.png'
+ICON_PAGEUP = ICON_DIR / 'pageup.png'
+ICON_HOME = ICON_DIR / 'home.png'
+ICON_END = ICON_DIR / 'end.png'
+ICON_PAGEDOWN = ICON_DIR / 'pagedown.png'
+ICON_LINEDOWN = ICON_DIR / 'linedown.png'
+ICON_CHARRIGHT = ICON_DIR / 'charright.png'
 
 
 # Base64 data
