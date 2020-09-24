@@ -72,7 +72,8 @@ class ViewerApp(tk.Frame):
         }
 
         self.flipped_values = tuple(utils.generate_flipped())
-        self.asc_to_disp = utils.generate_asc_to_disp()
+        with open(constants.DATA_DIR / 'asc_to_disp.pickle', 'rb') as f:
+            self.asc_to_disp = pickle.load(f)
         self.fn_id_cache = defaultdict(lambda: {'<Enter>': {}, '<Leave>': {}})
 
         # variables to be directly connected with widgets

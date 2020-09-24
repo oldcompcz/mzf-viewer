@@ -17,13 +17,6 @@ def test_generate_charset_not_called(generate_charset_mock: Mock):
     generate_charset_mock.assert_not_called()
 
 
-@pytest.mark.xfail
-@patch('mzfviewer.__main__.utils.generate_asc_to_disp')
-def test_generate_asc_to_disp_not_called(generate_asc_to_disp_mock: Mock):
-    ViewerApp()
-    generate_asc_to_disp_mock.assert_not_called()
-
-
 @patch('mzfviewer.__main__.utils.generate_bitmaps')
 def test_generate_bitmaps_not_called(generate_bitmaps_mock: Mock):
     ViewerApp()

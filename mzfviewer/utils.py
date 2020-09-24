@@ -44,13 +44,6 @@ static unsigned char byte{n}_bits[] = {{ {data} }}"""
         yield format_string.format(n=i, w=8*zoom, data=joined_hex)
 
 
-def generate_asc_to_disp():
-    """Return a byte sequence serving as conversion table from ascii code
-    to display (video-RAM) code.
-    """
-    return base64.b64decode(constants.ASC_TO_DISP)
-
-
 def generate_bitmaps(zoom):
     """Generate a sequence of 16x2px or 24x3px bitmaps, in the format required
     by the tkinter.BitmapImage constructor.
