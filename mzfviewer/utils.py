@@ -9,7 +9,7 @@ def get_tag(sequence_of_strings):
     """Return first string that matches the 'item{number}' pattern."""
 
     for tag in sequence_of_strings:
-        if re.match(r"^item\d+$", tag):
+        if re.match(r'^item\d+$', tag):
             return tag
 
 
@@ -27,7 +27,7 @@ static unsigned char byte{n}_bits[] = {{ {data} }}"""
         for byte in chunk:
             hex_strings.extend(hex(i) for i in zoomed(byte, zoom))
 
-        joined_hex = ",".join(hex_strings)
+        joined_hex = ','.join(hex_strings)
 
         yield format_string.format(n=i, w=8*zoom, data=joined_hex)
 
@@ -41,7 +41,7 @@ def generate_bitmaps(zoom):
 static unsigned char byte{n}_bits[] = {{ {data} }}"""
 
     for i in range(256):
-        joined_hex = ",".join(hex(i) for i in zoomed(i, zoom))
+        joined_hex = ','.join(hex(i) for i in zoomed(i, zoom))
 
         yield format_string.format(n=i, w=8*zoom, h=zoom, data=joined_hex)
 
@@ -50,7 +50,7 @@ def generate_flipped():
     """Generate a sequence of bitwise mirrored 8-bit values."""
 
     for n in range(256):
-        bin_string_reversed = "{:08b}".format(n)[::-1]
+        bin_string_reversed = '{:08b}'.format(n)[::-1]
         yield int(bin_string_reversed, 2)
 
 
@@ -69,7 +69,7 @@ def zoomed(byte, zoom):
                                             zoomed_bits)
                  if byte & bit)
 
-    return result.to_bytes(zoom, "little") * zoom
+    return result.to_bytes(zoom, 'little') * zoom
 
 
 def generate_and_pickle_data():
