@@ -5,12 +5,6 @@ import pytest
 from mzfviewer.__main__ import ViewerApp
 
 
-@patch('mzfviewer.__main__.utils.generate_cgrom')
-def test_generate_cgrom_not_called(generate_cgrom_mock: Mock):
-    ViewerApp()
-    generate_cgrom_mock.assert_not_called()
-
-
 @patch('mzfviewer.__main__.utils.generate_charset')
 def test_generate_charset_not_called(generate_charset_mock: Mock):
     ViewerApp()

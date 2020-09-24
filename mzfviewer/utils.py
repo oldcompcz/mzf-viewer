@@ -1,4 +1,3 @@
-import base64
 from functools import lru_cache
 import pickle
 import re
@@ -12,17 +11,6 @@ def get_tag(sequence_of_strings):
     for tag in sequence_of_strings:
         if re.match(r"^item\d+$", tag):
             return tag
-
-
-def generate_cgrom():
-    """Generate a sequence representing the original Sharp MZ font.
-
-    Each yielded item is an 8-tuple of 0-255 integers.
-    """
-    itr = iter(base64.b64decode(constants.CG_ROM))
-
-    for chunk in zip(*[itr]*8):
-        yield chunk
 
 
 def generate_charset(cgrom, zoom):
@@ -85,7 +73,8 @@ def zoomed(byte, zoom):
 
 
 def generate_and_pickle_data():
-    cgrom = tuple(generate_cgrom())
+    with open(constants.DATA_DIR / 'cg_rom.pickle', 'rb') as f:
+        cgrom = pickle.load(f)
 
     charset_zoom_2 = tuple(generate_charset(cgrom, 2))
     with open(constants.DATA_DIR / 'charset_zoom_2.pickle', 'wb') as f:
