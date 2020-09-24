@@ -16,7 +16,7 @@ import itertools
 from pathlib import Path
 import pickle
 import sys
-import tkinter as T
+import tkinter as tk
 from tkinter import filedialog
 from tkinter import font
 
@@ -24,7 +24,7 @@ from mzfviewer import constants
 from mzfviewer import utils
 
 
-class ViewerApp(T.Frame):
+class ViewerApp(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.pack()
@@ -35,15 +35,15 @@ class ViewerApp(T.Frame):
             charset_zoom_3 = pickle.load(f)
 
         self.charsets = {
-            2: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)
+            2: tuple(tk.BitmapImage(data=bitmap, foreground=constants.WHITE)
                      for bitmap in charset_zoom_2),
-            3: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)
+            3: tuple(tk.BitmapImage(data=bitmap, foreground=constants.WHITE)
                      for bitmap in charset_zoom_3),
         }
         self.charsets_active = {
-            2: tuple(T.BitmapImage(data=bitmap, **constants.ACTIVE)
+            2: tuple(tk.BitmapImage(data=bitmap, **constants.ACTIVE)
                      for bitmap in charset_zoom_2),
-            3: tuple(T.BitmapImage(data=bitmap, **constants.ACTIVE)
+            3: tuple(tk.BitmapImage(data=bitmap, **constants.ACTIVE)
                      for bitmap in charset_zoom_3),
         }
 
@@ -53,21 +53,21 @@ class ViewerApp(T.Frame):
             bitmaps_zoom_3 = pickle.load(f)
 
         self.bmps = {
-            2: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)
+            2: tuple(tk.BitmapImage(data=bitmap, foreground=constants.WHITE)
                      for bitmap in bitmaps_zoom_2),
-            3: tuple(T.BitmapImage(data=bitmap, foreground=constants.WHITE)
+            3: tuple(tk.BitmapImage(data=bitmap, foreground=constants.WHITE)
                      for bitmap in bitmaps_zoom_3)
         }
         self.bmps_blue = {
-            2: tuple(T.BitmapImage(data=bitmap, foreground=constants.LITE_BLUE)
+            2: tuple(tk.BitmapImage(data=bitmap, foreground=constants.LITE_BLUE)
                      for bitmap in bitmaps_zoom_2),
-            3: tuple(T.BitmapImage(data=bitmap, foreground=constants.LITE_BLUE)
+            3: tuple(tk.BitmapImage(data=bitmap, foreground=constants.LITE_BLUE)
                      for bitmap in bitmaps_zoom_3)
         }
         self.bmps_active = {
-            2: tuple(T.BitmapImage(data=bitmap, **constants.ACTIVE)
+            2: tuple(tk.BitmapImage(data=bitmap, **constants.ACTIVE)
                      for bitmap in bitmaps_zoom_2),
-            3: tuple(T.BitmapImage(data=bitmap, **constants.ACTIVE)
+            3: tuple(tk.BitmapImage(data=bitmap, **constants.ACTIVE)
                      for bitmap in bitmaps_zoom_3)
         }
 
@@ -76,34 +76,34 @@ class ViewerApp(T.Frame):
         self.fn_id_cache = defaultdict(lambda: {'<Enter>': {}, '<Leave>': {}})
 
         # variables to be directly connected with widgets
-        self.zoom = T.IntVar()
-        self.filename = T.StringVar()
+        self.zoom = tk.IntVar()
+        self.filename = tk.StringVar()
 
-        self.asc_code = T.BooleanVar()
+        self.asc_code = tk.BooleanVar()
         self.asc_code.set(True)
 
-        self.alt_charset = T.BooleanVar()
+        self.alt_charset = tk.BooleanVar()
         self.alt_charset.set(False)
 
-        self.bmp_columns = T.IntVar()
+        self.bmp_columns = tk.IntVar()
 
-        self.bmp_block_height = T.IntVar()
+        self.bmp_block_height = tk.IntVar()
         self.bmp_block_height.set("8")
 
-        self.bmp_displayed = T.IntVar()
+        self.bmp_displayed = tk.IntVar()
 
-        self.bmp_flipped = T.BooleanVar()
+        self.bmp_flipped = tk.BooleanVar()
         self.bmp_flipped.set(False)
 
         # icons for navigation buttons
-        self.img_char_left = T.PhotoImage(file=constants.ICON_CHARLEFT)
-        self.img_line_up = T.PhotoImage(file=constants.ICON_LINEUP)
-        self.img_page_up = T.PhotoImage(file=constants.ICON_PAGEUP)
-        self.img_home = T.PhotoImage(file=constants.ICON_HOME)
-        self.img_end = T.PhotoImage(file=constants.ICON_END)
-        self.img_page_down = T.PhotoImage(file=constants.ICON_PAGEDOWN)
-        self.img_line_down = T.PhotoImage(file=constants.ICON_LINEDOWN)
-        self.img_char_right = T.PhotoImage(file=constants.ICON_CHARRIGHT)
+        self.img_char_left = tk.PhotoImage(file=constants.ICON_CHARLEFT)
+        self.img_line_up = tk.PhotoImage(file=constants.ICON_LINEUP)
+        self.img_page_up = tk.PhotoImage(file=constants.ICON_PAGEUP)
+        self.img_home = tk.PhotoImage(file=constants.ICON_HOME)
+        self.img_end = tk.PhotoImage(file=constants.ICON_END)
+        self.img_page_down = tk.PhotoImage(file=constants.ICON_PAGEDOWN)
+        self.img_line_down = tk.PhotoImage(file=constants.ICON_LINEDOWN)
+        self.img_char_right = tk.PhotoImage(file=constants.ICON_CHARRIGHT)
 
         self.draw_gui()
         self.set_zoom(2)
@@ -155,7 +155,7 @@ class ViewerApp(T.Frame):
 
         # First row of widgets
 
-        s_zoom = T.Scale(self, label="Zoom:", orient='horizontal',
+        s_zoom = tk.Scale(self, label="Zoom:", orient='horizontal',
                          length=60, from_=2, to=3, showvalue=False,
                          variable=self.zoom, command=self.change_zoom)
         s_zoom.grid(row=10, sticky="w", padx=10)
@@ -165,70 +165,70 @@ class ViewerApp(T.Frame):
         #  virtual event. Can it be used in connection with Button's
         #  `underline` option, or is it reserved only for menu entries?
 
-        b_open = T.Button(self, text="Open file...", command=self.open_file)
+        b_open = tk.Button(self, text="Open file...", command=self.open_file)
         b_open.grid(column=3, row=10, sticky="e", padx=5, pady=10)
 
-        l_filename = T.Label(self, textvariable=self.filename, anchor="w")
+        l_filename = tk.Label(self, textvariable=self.filename, anchor="w")
         l_filename.grid(column=4, row=10, columnspan=8, sticky="ew",
                         padx=5, pady=10)
 
         # Standard hex dump frame
 
-        f_hexdump = T.Frame(self, borderwidth=3, relief="groove")
+        f_hexdump = tk.Frame(self, borderwidth=3, relief="groove")
         f_hexdump.grid(columnspan=5, row=15, sticky="ns", padx=10, pady=5)
 
-        self.t_adr = T.Text(f_hexdump, background=constants.WHITE,
+        self.t_adr = tk.Text(f_hexdump, background=constants.WHITE,
                             width=6, height=32, cursor="arrow")
         self.t_adr.grid(padx=10, pady=10)
 
-        self.t_hexdump = T.Text(f_hexdump, background=constants.WHITE,
+        self.t_hexdump = tk.Text(f_hexdump, background=constants.WHITE,
                                 width=23, height=32, cursor="arrow")
         self.t_hexdump.grid(column=1, row=0, pady=10)
 
-        self.t_pc_char = T.Text(f_hexdump, background=constants.WHITE,
+        self.t_pc_char = tk.Text(f_hexdump, background=constants.WHITE,
                                 width=8, height=32, cursor="arrow")
         self.t_pc_char.grid(column=2, row=0, padx=10, pady=10)
 
         # Sharp MZ dump frame
 
-        f_mz_dump = T.Frame(self, borderwidth=3, relief="groove")
+        f_mz_dump = tk.Frame(self, borderwidth=3, relief="groove")
         f_mz_dump.grid(column=5, columnspan=5, row=15, sticky="ns", pady=5)
 
-        self.c_mz_dump = T.Canvas(f_mz_dump, background=constants.BLUE,
+        self.c_mz_dump = tk.Canvas(f_mz_dump, background=constants.BLUE,
                                   highlightthickness=0)
         self.c_mz_dump.grid(rowspan=15, padx=10, pady=13)
 
-        rb_ascii = T.Radiobutton(f_mz_dump, text="ASCII",
+        rb_ascii = tk.Radiobutton(f_mz_dump, text="ASCII",
                                  variable=self.asc_code, value=True,
                                  command=self.redraw_mz_chars)
         rb_ascii.grid(column=1, row=0, sticky="sw", padx=5)
 
-        rb_display = T.Radiobutton(f_mz_dump, text="Display",
+        rb_display = tk.Radiobutton(f_mz_dump, text="Display",
                                    variable=self.asc_code, value=False,
                                    command=self.redraw_mz_chars)
         rb_display.grid(column=1, row=1, sticky="nw", padx=5)
 
-        rb_charset1 = T.Radiobutton(f_mz_dump, text="Charset 1",
+        rb_charset1 = tk.Radiobutton(f_mz_dump, text="Charset 1",
                                     variable=self.alt_charset, value=False,
                                     command=self.redraw_mz_chars)
         rb_charset1.grid(column=1, row=2, sticky="sw", padx=5)
 
-        rb_charset2 = T.Radiobutton(f_mz_dump, text="Charset 2",
+        rb_charset2 = tk.Radiobutton(f_mz_dump, text="Charset 2",
                                     variable=self.alt_charset, value=True,
                                     command=self.redraw_mz_chars)
         rb_charset2.grid(column=1, row=3, sticky="nw", padx=5)
 
         # Bitmap frame
 
-        f_bitmap = T.Frame(self, borderwidth=3, relief="groove")
+        f_bitmap = tk.Frame(self, borderwidth=3, relief="groove")
         f_bitmap.grid(column=10, columnspan=5, row=15, sticky="ns",
                       padx=10, pady=5)
 
-        self.c_bmp = T.Canvas(f_bitmap, background=constants.GREY_BLUE,
+        self.c_bmp = tk.Canvas(f_bitmap, background=constants.GREY_BLUE,
                               highlightthickness=0)
         self.c_bmp.grid(column=3, rowspan=15, padx=10, pady=13)
 
-        l_bitmap_columns = T.Label(f_bitmap, text="Columns:")
+        l_bitmap_columns = tk.Label(f_bitmap, text="Columns:")
         l_bitmap_columns.grid(column=1, row=0, sticky="ws")
 
         # TODO:
@@ -237,86 +237,86 @@ class ViewerApp(T.Frame):
         #  from keyboard. Can MouseWheel events be used to control
         #  these spinboxes?
 
-        sb_bitmap_columns = T.Spinbox(f_bitmap, width=2, from_=1, to=32,
+        sb_bitmap_columns = tk.Spinbox(f_bitmap, width=2, from_=1, to=32,
                                       increment=1,
                                       textvariable=self.bmp_columns,
                                       command=self.redraw_bitmap)
         sb_bitmap_columns.grid(column=2, row=0, sticky="ws", padx=10)
 
-        l_block_height = T.Label(f_bitmap, text="Block height:")
+        l_block_height = tk.Label(f_bitmap, text="Block height:")
         l_block_height.grid(column=1, row=1, sticky="nw")
 
-        sb_block_height = T.Spinbox(f_bitmap, width=2, from_=1, to=64,
+        sb_block_height = tk.Spinbox(f_bitmap, width=2, from_=1, to=64,
                                     increment=1,
                                     textvariable=self.bmp_block_height,
                                     command=self.redraw_bitmap)
         sb_block_height.grid(column=2, row=1, sticky="nw", padx=10)
 
-        l_disp = T.Label(f_bitmap, text="Bytes displayed:")
+        l_disp = tk.Label(f_bitmap, text="Bytes displayed:")
         l_disp.grid(column=1, row=2, sticky="nw")
 
         # TODO:
         #  `Bytes displayed` widget: Change to a roll-down list?
         #  (currently only 8 possible values)
 
-        sb_disp = T.Spinbox(f_bitmap, width=4, from_=256, to=2048,
+        sb_disp = tk.Spinbox(f_bitmap, width=4, from_=256, to=2048,
                             increment=256, textvariable=self.bmp_displayed,
                             command=self.redraw_bitmap)
         sb_disp.grid(column=2, row=2, sticky="nw", padx=10)
 
-        cb_flipped = T.Checkbutton(f_bitmap, text="Horizontal flip",
+        cb_flipped = tk.Checkbutton(f_bitmap, text="Horizontal flip",
                                    variable=self.bmp_flipped,
                                    command=self.redraw_bitmap)
         cb_flipped.grid(column=1, row=3, columnspan=2, sticky="nw")
 
         # Navigation buttons
 
-        f_navigate = T.Frame(self, borderwidth=3, relief="groove")
+        f_navigate = tk.Frame(self, borderwidth=3, relief="groove")
         f_navigate.grid(column=3, row=20, columnspan=9, pady=10)
 
-        b_char_left = T.Button(f_navigate, text="Char\nLeft",
+        b_char_left = tk.Button(f_navigate, text="Char\nLeft",
                                image=self.img_char_left, compound="top",
                                command=lambda: self.move("Left"))
         b_char_left.grid()
 
-        b_line_up = T.Button(f_navigate, text="Line\nUp",
+        b_line_up = tk.Button(f_navigate, text="Line\nUp",
                              image=self.img_line_up, compound="top",
                              command=lambda: self.move("Up"))
         b_line_up.grid(column=1, row=0)
 
-        b_page_up = T.Button(f_navigate, text="Page\nUp",
+        b_page_up = tk.Button(f_navigate, text="Page\nUp",
                              image=self.img_page_up, compound="top",
                              command=lambda: self.move("Prior"))
         b_page_up.grid(column=2, row=0)
 
-        b_home = T.Button(f_navigate, text="Home\n",
+        b_home = tk.Button(f_navigate, text="Home\n",
                           image=self.img_home, compound="top",
                           command=lambda: self.move("Home"))
         b_home.grid(column=3, row=0)
 
-        b_end = T.Button(f_navigate, text="End\n",
+        b_end = tk.Button(f_navigate, text="End\n",
                          image=self.img_end, compound="top",
                          command=lambda: self.move("End"))
         b_end.grid(column=4, row=0)
 
-        b_page_down = T.Button(f_navigate, text="Page\nDown",
+        b_page_down = tk.Button(f_navigate, text="Page\nDown",
                                image=self.img_page_down, compound="top",
                                command=lambda: self.move("Next"))
         b_page_down.grid(column=5, row=0)
 
-        b_line_down = T.Button(f_navigate, text="Line\nDown",
+        b_line_down = tk.Button(f_navigate, text="Line\nDown",
                                image=self.img_line_down, compound="top",
                                command=lambda: self.move("Down"))
         b_line_down.grid(column=6, row=0)
 
-        b_char_right = T.Button(f_navigate, text="Char\nRight",
+        b_char_right = tk.Button(f_navigate, text="Char\nRight",
                                 image=self.img_char_right, compound="top",
                                 command=lambda: self.move("Right"))
         b_char_right.grid(column=7, row=0)
 
         # Exit button
 
-        b_exit = T.Button(self, text="Exit", command=self.close)
+        b_exit = tk.Button(self, text="Exit", command=self.close)
         b_exit.grid(column=14, row=20, sticky="ews", padx=10, pady=10)
 
     def open_file(self, filename=None):
@@ -613,7 +613,7 @@ class ViewerApp(T.Frame):
 
 
 def main():
-    root = T.Tk()
+    root = tk.Tk()
     root.wm_title("MZF Viewer")
     root.tk_setPalette(constants.MAIN_BG)
     app = ViewerApp(master=root)
