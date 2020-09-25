@@ -12,6 +12,8 @@ def get_tag(sequence_of_strings):
         if re.match(r'^item\d+$', tag):
             return tag
 
+    return None
+
 
 def generate_charset(cgrom, zoom):
     """Generate the original Sharp MZ font as a sequence of 16x16px or 24x24px

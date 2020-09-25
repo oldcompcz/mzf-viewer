@@ -96,51 +96,11 @@ class ViewerApp(tk.Frame):
         self.bmp_flipped = tk.BooleanVar()
         self.bmp_flipped.set(False)
 
-        # icons for navigation buttons
-        self.img_char_left = tk.PhotoImage(file=constants.ICON_CHARLEFT)
-        self.img_line_up = tk.PhotoImage(file=constants.ICON_LINEUP)
-        self.img_page_up = tk.PhotoImage(file=constants.ICON_PAGEUP)
-        self.img_home = tk.PhotoImage(file=constants.ICON_HOME)
-        self.img_end = tk.PhotoImage(file=constants.ICON_END)
-        self.img_page_down = tk.PhotoImage(file=constants.ICON_PAGEDOWN)
-        self.img_line_down = tk.PhotoImage(file=constants.ICON_LINEDOWN)
-        self.img_char_right = tk.PhotoImage(file=constants.ICON_CHARRIGHT)
-
+        self.create_icons()
         self.draw_gui()
         self.set_zoom(2)
-
-        # keyboard events
-        self.master.bind('<Left>', self.move)
-        self.master.bind('<Up>', self.move)
-        self.master.bind('<Prior>', self.move)
-        self.master.bind('<Home>', self.move)
-        self.master.bind('<End>', self.move)
-        self.master.bind('<Next>', self.move)
-        self.master.bind('<Down>', self.move)
-        self.master.bind('<Right>', self.move)
-
-        self.master.bind('<Alt-x>', self.close)
-
-        # mouse wheel events (Windows)
-        self.t_adr.bind('<MouseWheel>', self.move)
-        self.t_hexdump.bind('<MouseWheel>', self.move)
-        self.t_pc_char.bind('<MouseWheel>', self.move)
-        self.c_mz_dump.bind('<MouseWheel>', self.move)
-        self.c_bmp.bind('<MouseWheel>', self.move)
-        # mouse wheel events (Linux)
-        self.t_adr.bind('<Button-4>', self.move)
-        self.t_adr.bind('<Button-5>', self.move)
-        self.t_hexdump.bind('<Button-4>', self.move)
-        self.t_hexdump.bind('<Button-5>', self.move)
-        self.t_pc_char.bind('<Button-4>', self.move)
-        self.t_pc_char.bind('<Button-5>', self.move)
-        self.c_mz_dump.bind('<Button-4>', self.move)
-        self.c_mz_dump.bind('<Button-5>', self.move)
-        self.c_bmp.bind('<Button-4>', self.move)
-        self.c_bmp.bind('<Button-5>', self.move)
-        # mouse over and out events
-        self.bind_mouse_to_canvas_tags(self.c_mz_dump)
-        self.bind_mouse_to_canvas_tags(self.c_bmp)
+        self.bind_keyboard_events()
+        self.bind_mouse_events()
 
         # if possible, open a file from a command line argument
         if sys.argv[1:] and Path(sys.argv[1]).is_file():
@@ -151,6 +111,18 @@ class ViewerApp(tk.Frame):
             self.file_data = b''
             self.position = 0
             self.visible_data = b''
+
+    def create_icons(self):
+        """ Create icons for navigation buttons."""
+
+        self.img_char_left = tk.PhotoImage(file=constants.ICON_CHARLEFT)
+        self.img_line_up = tk.PhotoImage(file=constants.ICON_LINEUP)
+        self.img_page_up = tk.PhotoImage(file=constants.ICON_PAGEUP)
+        self.img_home = tk.PhotoImage(file=constants.ICON_HOME)
+        self.img_end = tk.PhotoImage(file=constants.ICON_END)
+        self.img_page_down = tk.PhotoImage(file=constants.ICON_PAGEDOWN)
+        self.img_line_down = tk.PhotoImage(file=constants.ICON_LINEDOWN)
+        self.img_char_right = tk.PhotoImage(file=constants.ICON_CHARRIGHT)
 
     def draw_gui(self):
 
@@ -319,6 +291,42 @@ class ViewerApp(tk.Frame):
 
         b_exit = tk.Button(self, text='Exit', command=self.close)
         b_exit.grid(column=14, row=20, sticky='ews', padx=10, pady=10)
+
+    def bind_keyboard_events(self):
+        self.master.bind('<Left>', self.move)
+        self.master.bind('<Up>', self.move)
+        self.master.bind('<Prior>', self.move)
+        self.master.bind('<Home>', self.move)
+        self.master.bind('<End>', self.move)
+        self.master.bind('<Next>', self.move)
+        self.master.bind('<Down>', self.move)
+        self.master.bind('<Right>', self.move)
+
+        self.master.bind('<Alt-x>', self.close)
+
+    def bind_mouse_events(self):
+        # mouse wheel events (Windows)
+        self.t_adr.bind('<MouseWheel>', self.move)
+        self.t_hexdump.bind('<MouseWheel>', self.move)
+        self.t_pc_char.bind('<MouseWheel>', self.move)
+        self.c_mz_dump.bind('<MouseWheel>', self.move)
+        self.c_bmp.bind('<MouseWheel>', self.move)
+
+        # mouse wheel events (Linux)
+        self.t_adr.bind('<Button-4>', self.move)
+        self.t_adr.bind('<Button-5>', self.move)
+        self.t_hexdump.bind('<Button-4>', self.move)
+        self.t_hexdump.bind('<Button-5>', self.move)
+        self.t_pc_char.bind('<Button-4>', self.move)
+        self.t_pc_char.bind('<Button-5>', self.move)
+        self.c_mz_dump.bind('<Button-4>', self.move)
+        self.c_mz_dump.bind('<Button-5>', self.move)
+        self.c_bmp.bind('<Button-4>', self.move)
+        self.c_bmp.bind('<Button-5>', self.move)
+
+        # mouse over and out events
+        self.bind_mouse_to_canvas_tags(self.c_mz_dump)
+        self.bind_mouse_to_canvas_tags(self.c_bmp)
 
     def open_file(self, filename=None):
 
