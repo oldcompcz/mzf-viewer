@@ -24,7 +24,7 @@ from mzfviewer import constants
 from mzfviewer import utils
 
 
-class ViewerApp(tk.Frame):
+class ViewerApp(tk.Frame):    # pylint: disable=too-many-ancestors
     def __init__(self, master=None):
         super().__init__(master)
         self.pack()
@@ -583,7 +583,7 @@ class ViewerApp(tk.Frame):
             active_bmp = self.c_bmp.itemcget(tag, 'activeimage')
             self.c_bmp.itemconfigure(tag, image=active_bmp)
 
-    def mouse_leave(self, event):
+    def mouse_leave(self, event):    # pylint: disable=unused-argument
         tag = self.previous_tag
 
         if tag in self.t_hexdump.tag_names():
@@ -611,7 +611,7 @@ class ViewerApp(tk.Frame):
             widget.tag_bind(tag, '<Enter>', self.mouse_enter)
             widget.tag_bind(tag, '<Leave>', self.mouse_leave)
 
-    def close(self, *args):
+    def close(self, *args):    # pylint: disable=unused-argument
         """Close the application window.
 
         Called with one <tkinter.Event> argument when using the Alt+X shortcut,
