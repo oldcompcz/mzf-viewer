@@ -126,6 +126,7 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         self.img_char_right = tk.PhotoImage(file=constants.ICON_CHARRIGHT)
 
     def draw_gui(self):
+        self['menu'] = self.get_menu_bar()
 
         # First row of widgets
 
@@ -293,6 +294,30 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         b_exit = tk.Button(self, text='Exit', command=self.close)
         b_exit.grid(column=14, row=20, sticky='ews', padx=10, pady=10)
 
+    def get_menu_bar(self):
+        menu = tk.Menu(self)
+
+        # File menu
+        menu_file = tk.Menu(menu, tearoff=False)
+        menu_file.add('command', label='Open...', underline=0,
+                      accelerator='Ctrl+O', command=self.open_file)
+        menu_file.add('separator')
+        menu_file.add('command', label='Quit', underline=0,
+                      accelerator='Ctrl+Q', command=self.close)
+
+        # View menu
+        menu_view = tk.Menu(menu, tearoff=False)
+        menu_view.add('radiobutton', label='Zoom 200%', underline=5,
+                      variable=self.zoom, value=2,
+                      accelerator='Ctrl+2', command=self.change_zoom)
+        menu_view.add('radiobutton', label='Zoom 300%', underline=5,
+                      variable=self.zoom, value=3,
+                      accelerator='Ctrl+3', command=self.change_zoom)
+
+        menu.add('cascade', label='File', underline=0, menu=menu_file)
+        menu.add('cascade', label='View', underline=0, menu=menu_view)
+        return menu
+
     def bind_keyboard_events(self):
         self.bind('<Left>', self.move)
         self.bind('<Up>', self.move)
@@ -417,7 +442,8 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         self.c_bmp['width'] = zoom * self.bmp_columns.get() * 8
         self.c_bmp['height'] = zoom * 32 * 8
 
-    def change_zoom(self, zoom):
+    def change_zoom(self):
+        zoom = self.zoom.get()
         self.set_zoom(int(zoom))
         if self.file_data:
             self.redraw_main()
