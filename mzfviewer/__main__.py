@@ -8,7 +8,6 @@
 #                   rb_   ...  Radiobutton widget
 #                   cb_   ...  Checkbutton widget
 #                   sb_   ...  Spinbox widget
-#                    s_   ...  Scale widget
 
 
 from collections import defaultdict
@@ -129,16 +128,6 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         self['menu'] = self.get_menu_bar()
 
         # First row of widgets
-
-        s_zoom = tk.Scale(self, label='Zoom:', orient='horizontal',
-                         length=60, from_=2, to=3, showvalue=False,
-                         variable=self.zoom, command=self.change_zoom)
-        s_zoom.grid(row=10, sticky='w', padx=10)
-
-        # TODO:
-        #  `Open file` and `Exit` pushbuttons: Explore the AltUnderline
-        #  virtual event. Can it be used in connection with Button's
-        #  `underline` option, or is it reserved only for menu entries?
 
         b_open = tk.Button(self, text='Open file...', command=self.open_file)
         b_open.grid(column=3, row=10, sticky='e', padx=5, pady=10)
@@ -289,11 +278,6 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
                                 command=lambda: self.move('Right'))
         b_char_right.grid(column=7, row=0)
 
-        # Exit button
-
-        b_exit = tk.Button(self, text='Exit', command=self.close)
-        b_exit.grid(column=14, row=20, sticky='ews', padx=10, pady=10)
-
     def get_menu_bar(self):
         menu = tk.Menu(self)
 
@@ -327,8 +311,6 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         self.bind('<Next>', self.move)
         self.bind('<Down>', self.move)
         self.bind('<Right>', self.move)
-
-        self.bind('<Alt-x>', self.close)
 
     def bind_mouse_events(self):
         # mouse wheel events (Windows)
