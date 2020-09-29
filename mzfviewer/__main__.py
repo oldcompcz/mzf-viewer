@@ -24,10 +24,11 @@ from mzfviewer import constants
 from mzfviewer import utils
 
 
-class ViewerApp(tk.Frame):    # pylint: disable=too-many-ancestors
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.pack()
+class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
+    def __init__(self):
+        super().__init__()
+        self.wm_title('MZF Viewer')
+        self.tk_setPalette(constants.MAIN_BG)
 
         with open(constants.DATA_DIR / 'charset_zoom_2.pickle', 'rb') as f:
             charset_zoom_2 = pickle.load(f)
@@ -293,16 +294,16 @@ class ViewerApp(tk.Frame):    # pylint: disable=too-many-ancestors
         b_exit.grid(column=14, row=20, sticky='ews', padx=10, pady=10)
 
     def bind_keyboard_events(self):
-        self.master.bind('<Left>', self.move)
-        self.master.bind('<Up>', self.move)
-        self.master.bind('<Prior>', self.move)
-        self.master.bind('<Home>', self.move)
-        self.master.bind('<End>', self.move)
-        self.master.bind('<Next>', self.move)
-        self.master.bind('<Down>', self.move)
-        self.master.bind('<Right>', self.move)
+        self.bind('<Left>', self.move)
+        self.bind('<Up>', self.move)
+        self.bind('<Prior>', self.move)
+        self.bind('<Home>', self.move)
+        self.bind('<End>', self.move)
+        self.bind('<Next>', self.move)
+        self.bind('<Down>', self.move)
+        self.bind('<Right>', self.move)
 
-        self.master.bind('<Alt-x>', self.close)
+        self.bind('<Alt-x>', self.close)
 
     def bind_mouse_events(self):
         # mouse wheel events (Windows)
@@ -618,14 +619,11 @@ class ViewerApp(tk.Frame):    # pylint: disable=too-many-ancestors
         or without this argument when using the Exit button.
         """
 
-        self.master.destroy()
+        self.destroy()
 
 
 def main():
-    root = tk.Tk()
-    root.wm_title('MZF Viewer')
-    root.tk_setPalette(constants.MAIN_BG)
-    app = ViewerApp(master=root)
+    app = ViewerApp()
     app.mainloop()
 
 
