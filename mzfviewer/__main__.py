@@ -97,7 +97,6 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         self.bmp_flipped = tk.BooleanVar()
         self.bmp_flipped.set(False)
 
-        self.create_icons()
         self.draw_gui()
 
         self.file_data = None
@@ -117,18 +116,6 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
             self.file_data = b''
             self.position = 0
             self.visible_data = b''
-
-    def create_icons(self):
-        """ Create icons for navigation buttons."""
-
-        self.img_char_left = tk.PhotoImage(file=constants.ICON_CHARLEFT)
-        self.img_line_up = tk.PhotoImage(file=constants.ICON_LINEUP)
-        self.img_page_up = tk.PhotoImage(file=constants.ICON_PAGEUP)
-        self.img_home = tk.PhotoImage(file=constants.ICON_HOME)
-        self.img_end = tk.PhotoImage(file=constants.ICON_END)
-        self.img_page_down = tk.PhotoImage(file=constants.ICON_PAGEDOWN)
-        self.img_line_down = tk.PhotoImage(file=constants.ICON_LINEDOWN)
-        self.img_char_right = tk.PhotoImage(file=constants.ICON_CHARRIGHT)
 
     def draw_gui(self):
         self['menu'] = self.get_menu_bar()
@@ -230,51 +217,6 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
                                    command=self.redraw_bitmap)
         cb_flipped.grid(column=1, row=3, columnspan=2, sticky='nw')
 
-        # Navigation buttons
-
-        f_navigate = tk.Frame(self, borderwidth=3, relief='groove')
-        f_navigate.grid(column=3, row=20, columnspan=9, pady=10)
-
-        b_char_left = tk.Button(f_navigate, text='Char\nLeft',
-                               image=self.img_char_left, compound='top',
-                               command=lambda: self.move('Left'))
-        b_char_left.grid()
-
-        b_line_up = tk.Button(f_navigate, text='Line\nUp',
-                             image=self.img_line_up, compound='top',
-                             command=lambda: self.move('Up'))
-        b_line_up.grid(column=1, row=0)
-
-        b_page_up = tk.Button(f_navigate, text='Page\nUp',
-                             image=self.img_page_up, compound='top',
-                             command=lambda: self.move('Prior'))
-        b_page_up.grid(column=2, row=0)
-
-        b_home = tk.Button(f_navigate, text='Home\n',
-                          image=self.img_home, compound='top',
-                          command=lambda: self.move('Home'))
-        b_home.grid(column=3, row=0)
-
-        b_end = tk.Button(f_navigate, text='End\n',
-                         image=self.img_end, compound='top',
-                         command=lambda: self.move('End'))
-        b_end.grid(column=4, row=0)
-
-        b_page_down = tk.Button(f_navigate, text='Page\nDown',
-                               image=self.img_page_down, compound='top',
-                               command=lambda: self.move('Next'))
-        b_page_down.grid(column=5, row=0)
-
-        b_line_down = tk.Button(f_navigate, text='Line\nDown',
-                               image=self.img_line_down, compound='top',
-                               command=lambda: self.move('Down'))
-        b_line_down.grid(column=6, row=0)
-
-        b_char_right = tk.Button(f_navigate, text='Char\nRight',
-                                image=self.img_char_right, compound='top',
-                                command=lambda: self.move('Right'))
-        b_char_right.grid(column=7, row=0)
-
     def get_menu_bar(self):
         m_main = tk.Menu(self)
 
@@ -295,24 +237,49 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
                         variable=self.zoom, value=3,
                         accelerator='Ctrl+T', command=self.set_zoom)
 
+        # Navigate menu
+        self.m_navigate = tk.Menu(m_main, tearoff=False)
+        self.m_navigate.add('command', label='Char left', accelerator='Left',
+                            command=lambda: self.move('Left'))
+        self.m_navigate.add('command', label='Char right', accelerator='Right',
+                            command=lambda: self.move('Right'))
+        self.m_navigate.add('separator')
+        self.m_navigate.add('command', label='Line up', accelerator='Up',
+                            command=lambda: self.move('Up'))
+        self.m_navigate.add('command', label='Line down', accelerator='Down',
+                            command=lambda: self.move('Down'))
+        self.m_navigate.add('separator')
+        self.m_navigate.add('command', label='Page up', accelerator='PageUp',
+                            command=lambda: self.move('Prior'))
+        self.m_navigate.add('command', label='Page down', accelerator='PageDown',
+                            command=lambda: self.move('Next'))
+        self.m_navigate.add('separator')
+        self.m_navigate.add('command', label='To beginning', accelerator='Home',
+                            command=lambda: self.move('Home'))
+        self.m_navigate.add('command', label='To end', accelerator='End',
+                            command=lambda: self.move('End'))
+
         m_main.add('cascade', label='File', underline=0, menu=self.m_file)
         m_main.add('cascade', label='View', underline=0, menu=self.m_view)
+        m_main.add('cascade', label='Navigate', underline=0,
+                   menu=self.m_navigate)
         return m_main
 
     def bind_keyboard_events(self):
-        self.bind('<Left>', self.move)
-        self.bind('<Up>', self.move)
-        self.bind('<Prior>', self.move)
-        self.bind('<Home>', self.move)
-        self.bind('<End>', self.move)
-        self.bind('<Next>', self.move)
-        self.bind('<Down>', self.move)
-        self.bind('<Right>', self.move)
-
         self.bind('<Control-o>', lambda event: self.m_file.invoke(0))
         self.bind('<Control-q>', lambda event: self.m_file.invoke(2))
+
         self.bind('<Control-d>', lambda event: self.m_view.invoke(0))
         self.bind('<Control-t>', lambda event: self.m_view.invoke(1))
+
+        self.bind('<Left>', lambda event: self.m_navigate.invoke(0))
+        self.bind('<Right>', lambda event: self.m_navigate.invoke(1))
+        self.bind('<Up>', lambda event: self.m_navigate.invoke(3))
+        self.bind('<Down>', lambda event: self.m_navigate.invoke(4))
+        self.bind('<Prior>', lambda event: self.m_navigate.invoke(6))
+        self.bind('<Next>', lambda event: self.m_navigate.invoke(7))
+        self.bind('<Home>', lambda event: self.m_navigate.invoke(9))
+        self.bind('<End>', lambda event: self.m_navigate.invoke(10))
 
     def bind_mouse_events(self):
         # mouse wheel events (Windows)
@@ -375,14 +342,11 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
                  'Home': -len(self.file_data), 'End': len(self.file_data),
                  'ScrollUp': -32, 'ScrollDown': 32}
 
-        # if 'arg' is not one of the strings above, 'arg' is an event
+        # if `arg` is not one of the strings above, it is a mouse wheel event
         if arg not in jumps:
 
-            if str(arg.type) in ('2', 'KeyPress'):
-                arg = arg.keysym
-
             # mouse wheel on Windows
-            elif str(arg.type) in ('38', 'MouseWheel'):
+            if str(arg.type) in ('38', 'MouseWheel'):
                 arg = 'ScrollDown' if arg.delta < 0 else 'ScrollUp'
 
             # mouse wheel on Linux
