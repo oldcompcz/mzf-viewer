@@ -8,6 +8,7 @@
 #                   rb_   ...  Radiobutton widget
 #                   cb_   ...  Checkbutton widget
 #                   sb_   ...  Spinbox widget
+#                    m_   ...  Menu widget
 
 
 from collections import defaultdict
@@ -279,28 +280,28 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         b_char_right.grid(column=7, row=0)
 
     def get_menu_bar(self):
-        menu = tk.Menu(self)
+        m_main = tk.Menu(self)
 
         # File menu
-        self.menu_file = tk.Menu(menu, tearoff=False)
-        self.menu_file.add('command', label='Open...', underline=0,
-                           accelerator='Ctrl+O', command=self.open_file)
-        self.menu_file.add('separator')
-        self.menu_file.add('command', label='Quit', underline=0,
-                           accelerator='Ctrl+Q', command=self.close)
+        self.m_file = tk.Menu(m_main, tearoff=False)
+        self.m_file.add('command', label='Open...', underline=0,
+                        accelerator='Ctrl+O', command=self.open_file)
+        self.m_file.add('separator')
+        self.m_file.add('command', label='Quit', underline=0,
+                        accelerator='Ctrl+Q', command=self.close)
 
         # View menu
-        self.menu_view = tk.Menu(menu, tearoff=False)
-        self.menu_view.add('radiobutton', label='Double zoom (200%)', underline=5,
-                           variable=self.zoom, value=2,
-                           accelerator='Ctrl+D', command=self.change_zoom)
-        self.menu_view.add('radiobutton', label='Triple zoom (300%)', underline=5,
-                           variable=self.zoom, value=3,
-                           accelerator='Ctrl+T', command=self.change_zoom)
+        self.m_view = tk.Menu(m_main, tearoff=False)
+        self.m_view.add('radiobutton', label='Double zoom (200%)', underline=0,
+                        variable=self.zoom, value=2,
+                        accelerator='Ctrl+D', command=self.change_zoom)
+        self.m_view.add('radiobutton', label='Triple zoom (300%)', underline=0,
+                        variable=self.zoom, value=3,
+                        accelerator='Ctrl+T', command=self.change_zoom)
 
-        menu.add('cascade', label='File', underline=0, menu=self.menu_file)
-        menu.add('cascade', label='View', underline=0, menu=self.menu_view)
-        return menu
+        m_main.add('cascade', label='File', underline=0, menu=self.m_file)
+        m_main.add('cascade', label='View', underline=0, menu=self.m_view)
+        return m_main
 
     def bind_keyboard_events(self):
         self.bind('<Left>', self.move)
@@ -312,10 +313,10 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         self.bind('<Down>', self.move)
         self.bind('<Right>', self.move)
 
-        self.bind('<Control-o>', lambda event: self.menu_file.invoke(0))
-        self.bind('<Control-q>', lambda event: self.menu_file.invoke(2))
-        self.bind('<Control-d>', lambda event: self.menu_view.invoke(0))
-        self.bind('<Control-t>', lambda event: self.menu_view.invoke(1))
+        self.bind('<Control-o>', lambda event: self.m_file.invoke(0))
+        self.bind('<Control-q>', lambda event: self.m_file.invoke(2))
+        self.bind('<Control-d>', lambda event: self.m_view.invoke(0))
+        self.bind('<Control-t>', lambda event: self.m_view.invoke(1))
 
     def bind_mouse_events(self):
         # mouse wheel events (Windows)
