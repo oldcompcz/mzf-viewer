@@ -111,7 +111,8 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         if sys.argv[1:] and Path(sys.argv[1]).is_file():
             self.open_file(sys.argv[1])
         else:
-            self.filename.set('[no file]')
+            self.filename.set('')
+            self.show_filename_in_title()
             self.open_dir = './sample_mzf/'
             self.file_data = b''
             self.position = 0
@@ -131,15 +132,6 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
 
     def draw_gui(self):
         self['menu'] = self.get_menu_bar()
-
-        # First row of widgets
-
-        b_open = tk.Button(self, text='Open file...', command=self.open_file)
-        b_open.grid(column=3, row=10, sticky='e', padx=5, pady=10)
-
-        l_filename = tk.Label(self, textvariable=self.filename, anchor='w')
-        l_filename.grid(column=4, row=10, columnspan=8, sticky='ew',
-                        padx=5, pady=10)
 
         # Standard hex dump frame
 
@@ -357,6 +349,7 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
 
         if filename:
             self.filename.set(filename)
+            self.show_filename_in_title()
             self.open_dir = Path(filename).resolve().parent
 
             with open(filename, 'rb') as f:
@@ -368,6 +361,13 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
             self.redraw_main()
             self.redraw_mz_chars()
             self.redraw_bitmap()
+
+    def show_filename_in_title(self):
+        filename = self.filename.get()
+        if filename:
+            self.wm_title(Path(filename).name + ' - MZF Viewer')
+        else:
+            self.wm_title('MZF Viewer')
 
     def move(self, arg):
         jumps = {'Left': -1, 'Right': 1, 'Up': -8, 'Down': 8,
