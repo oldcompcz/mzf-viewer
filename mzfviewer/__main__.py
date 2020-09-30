@@ -99,7 +99,11 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
 
         self.create_icons()
         self.draw_gui()
-        self.set_zoom(2)
+
+        self.file_data = None
+        self.zoom.set(2)
+        self.set_zoom()
+
         self.bind_keyboard_events()
         self.bind_mouse_events()
 
@@ -294,10 +298,10 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         self.m_view = tk.Menu(m_main, tearoff=False)
         self.m_view.add('radiobutton', label='Double zoom (200%)', underline=0,
                         variable=self.zoom, value=2,
-                        accelerator='Ctrl+D', command=self.change_zoom)
+                        accelerator='Ctrl+D', command=self.set_zoom)
         self.m_view.add('radiobutton', label='Triple zoom (300%)', underline=0,
                         variable=self.zoom, value=3,
-                        accelerator='Ctrl+T', command=self.change_zoom)
+                        accelerator='Ctrl+T', command=self.set_zoom)
 
         m_main.add('cascade', label='File', underline=0, menu=self.m_file)
         m_main.add('cascade', label='View', underline=0, menu=self.m_view)
@@ -400,8 +404,8 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
                 self.redraw_mz_chars()
                 self.redraw_bitmap()
 
-    def set_zoom(self, zoom):
-        self.zoom.set(zoom)
+    def set_zoom(self):
+        zoom = self.zoom.get()
 
         # monospaced font for the text widgets
         # (search for a font size with line height exactly zoom*8 px,
@@ -430,9 +434,6 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         self.c_bmp['width'] = zoom * self.bmp_columns.get() * 8
         self.c_bmp['height'] = zoom * 32 * 8
 
-    def change_zoom(self):
-        zoom = self.zoom.get()
-        self.set_zoom(int(zoom))
         if self.file_data:
             self.redraw_main()
             self.redraw_mz_chars()
