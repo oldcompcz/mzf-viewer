@@ -126,15 +126,15 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         f_hexdump.grid(columnspan=5, row=15, sticky='ns', padx=10, pady=5)
 
         self.t_adr = tk.Text(f_hexdump, background=constants.WHITE,
-                            width=6, height=32, cursor='arrow')
+                             width=6, height=32, cursor='arrow')
         self.t_adr.grid(padx=10, pady=10)
 
         self.t_hexdump = tk.Text(f_hexdump, background=constants.WHITE,
-                                width=23, height=32, cursor='arrow')
+                                 width=23, height=32, cursor='arrow')
         self.t_hexdump.grid(column=1, row=0, pady=10)
 
         self.t_pc_char = tk.Text(f_hexdump, background=constants.WHITE,
-                                width=8, height=32, cursor='arrow')
+                                 width=8, height=32, cursor='arrow')
         self.t_pc_char.grid(column=2, row=0, padx=10, pady=10)
 
         # Sharp MZ dump frame
@@ -143,27 +143,27 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         f_mz_dump.grid(column=5, columnspan=5, row=15, sticky='ns', pady=5)
 
         self.c_mz_dump = tk.Canvas(f_mz_dump, background=constants.BLUE,
-                                  highlightthickness=0)
+                                   highlightthickness=0)
         self.c_mz_dump.grid(rowspan=15, padx=10, pady=13)
 
         rb_ascii = tk.Radiobutton(f_mz_dump, text='ASCII',
-                                 variable=self.asc_code, value=True,
-                                 command=self.redraw_mz_chars)
+                                  variable=self.asc_code, value=True,
+                                  command=self.redraw_mz_chars)
         rb_ascii.grid(column=1, row=0, sticky='sw', padx=5)
 
         rb_display = tk.Radiobutton(f_mz_dump, text='Display',
-                                   variable=self.asc_code, value=False,
-                                   command=self.redraw_mz_chars)
+                                    variable=self.asc_code, value=False,
+                                    command=self.redraw_mz_chars)
         rb_display.grid(column=1, row=1, sticky='nw', padx=5)
 
         rb_charset1 = tk.Radiobutton(f_mz_dump, text='Charset 1',
-                                    variable=self.alt_charset, value=False,
-                                    command=self.redraw_mz_chars)
+                                     variable=self.alt_charset, value=False,
+                                     command=self.redraw_mz_chars)
         rb_charset1.grid(column=1, row=2, sticky='sw', padx=5)
 
         rb_charset2 = tk.Radiobutton(f_mz_dump, text='Charset 2',
-                                    variable=self.alt_charset, value=True,
-                                    command=self.redraw_mz_chars)
+                                     variable=self.alt_charset, value=True,
+                                     command=self.redraw_mz_chars)
         rb_charset2.grid(column=1, row=3, sticky='nw', padx=5)
 
         # Bitmap frame
@@ -173,7 +173,7 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
                       padx=10, pady=5)
 
         self.c_bmp = tk.Canvas(f_bitmap, background=constants.GREY_BLUE,
-                              highlightthickness=0)
+                               highlightthickness=0)
         self.c_bmp.grid(column=3, rowspan=15, padx=10, pady=13)
 
         l_bitmap_columns = tk.Label(f_bitmap, text='Columns:')
@@ -186,18 +186,18 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         #  these spinboxes?
 
         sb_bitmap_columns = tk.Spinbox(f_bitmap, width=2, from_=1, to=32,
-                                      increment=1,
-                                      textvariable=self.bmp_columns,
-                                      command=self.redraw_bitmap)
+                                       increment=1,
+                                       textvariable=self.bmp_columns,
+                                       command=self.redraw_bitmap)
         sb_bitmap_columns.grid(column=2, row=0, sticky='ws', padx=10)
 
         l_block_height = tk.Label(f_bitmap, text='Block height:')
         l_block_height.grid(column=1, row=1, sticky='nw')
 
         sb_block_height = tk.Spinbox(f_bitmap, width=2, from_=1, to=64,
-                                    increment=1,
-                                    textvariable=self.bmp_block_height,
-                                    command=self.redraw_bitmap)
+                                     increment=1,
+                                     textvariable=self.bmp_block_height,
+                                     command=self.redraw_bitmap)
         sb_block_height.grid(column=2, row=1, sticky='nw', padx=10)
 
         l_disp = tk.Label(f_bitmap, text='Bytes displayed:')
@@ -208,13 +208,13 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         #  (currently only 8 possible values)
 
         sb_disp = tk.Spinbox(f_bitmap, width=4, from_=256, to=2048,
-                            increment=256, textvariable=self.bmp_displayed,
-                            command=self.redraw_bitmap)
+                             increment=256, textvariable=self.bmp_displayed,
+                             command=self.redraw_bitmap)
         sb_disp.grid(column=2, row=2, sticky='nw', padx=10)
 
         cb_flipped = tk.Checkbutton(f_bitmap, text='Horizontal flip',
-                                   variable=self.bmp_flipped,
-                                   command=self.redraw_bitmap)
+                                    variable=self.bmp_flipped,
+                                    command=self.redraw_bitmap)
         cb_flipped.grid(column=1, row=3, columnspan=2, sticky='nw')
 
     def get_menu_bar(self):
@@ -251,7 +251,8 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         self.m_navigate.add('separator')
         self.m_navigate.add('command', label='Page up', accelerator='PageUp',
                             command=lambda: self.move('Prior'))
-        self.m_navigate.add('command', label='Page down', accelerator='PageDown',
+        self.m_navigate.add('command', label='Page down',
+                            accelerator='PageDown',
                             command=lambda: self.move('Next'))
         self.m_navigate.add('separator')
         self.m_navigate.add('command', label='To beginning', accelerator='Home',
