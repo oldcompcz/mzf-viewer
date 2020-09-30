@@ -1,5 +1,6 @@
 from pathlib import Path
 
+APP_NAME = 'MZF Viewer'
 
 # Colors
 

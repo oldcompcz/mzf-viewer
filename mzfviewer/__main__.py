@@ -27,7 +27,6 @@ from mzfviewer import utils
 class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
     def __init__(self):
         super().__init__()
-        self.wm_title('MZF Viewer')
         self.tk_setPalette(constants.MAIN_BG)
 
         with open(constants.DATA_DIR / 'charset_zoom_2.pickle', 'rb') as f:
@@ -333,9 +332,9 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
     def show_filename_in_title(self):
         filename = self.filename.get()
         if filename:
-            self.wm_title(Path(filename).name + ' - MZF Viewer')
+            self.wm_title(f'{Path(filename).name} - {constants.APP_NAME}')
         else:
-            self.wm_title('MZF Viewer')
+            self.wm_title(constants.APP_NAME)
 
     def move(self, arg):
         jumps = {'Left': -1, 'Right': 1, 'Up': -8, 'Down': 8,
