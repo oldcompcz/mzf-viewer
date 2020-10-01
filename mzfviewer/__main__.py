@@ -12,6 +12,7 @@
 
 
 from collections import defaultdict
+from functools import lru_cache
 import itertools
 from pathlib import Path
 import pickle
@@ -96,6 +97,7 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         self.bmp_flipped = tk.BooleanVar()
         self.bmp_flipped.set(False)
 
+        self.mono_font = font.Font(name='TkFixedFont', exists=True)
         self.draw_gui()
 
         self.file_data = None
@@ -125,15 +127,18 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         f_hexdump.grid(columnspan=5, row=15, sticky='ns', padx=10, pady=5)
 
         self.t_adr = tk.Text(f_hexdump, background=constants.WHITE,
-                             width=6, height=32, cursor='arrow')
+                             width=6, height=32, cursor='arrow',
+                             font=self.mono_font)
         self.t_adr.grid(padx=10, pady=10)
 
         self.t_hexdump = tk.Text(f_hexdump, background=constants.WHITE,
-                                 width=23, height=32, cursor='arrow')
+                                 width=23, height=32, cursor='arrow',
+                                 font=self.mono_font)
         self.t_hexdump.grid(column=1, row=0, pady=10)
 
         self.t_pc_char = tk.Text(f_hexdump, background=constants.WHITE,
-                                 width=8, height=32, cursor='arrow')
+                                 width=8, height=32, cursor='arrow',
+                                 font=self.mono_font)
         self.t_pc_char.grid(column=2, row=0, padx=10, pady=10)
 
         # Sharp MZ dump frame
@@ -372,20 +377,7 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
         zoom = self.zoom.get()
 
         # monospaced font for the text widgets
-        # (search for a font size with line height exactly zoom*8 px,
-        # set to zoom*5 pt if unsuccessful)
-        mono_font = font.Font(name='TkFixedFont', exists=True)
-
-        for size in range(zoom * 9, -zoom * 9, -1):
-            mono_font['size'] = size
-            if mono_font.metrics()['linespace'] == zoom * 8:
-                break
-        else:
-            mono_font['size'] = zoom * 5
-
-        self.t_adr['font'] = mono_font
-        self.t_hexdump['font'] = mono_font
-        self.t_pc_char['font'] = mono_font
+        self.mono_font['size'] = self.get_mono_font_size(zoom)
 
         self.charset = self.charsets[zoom]
         self.charset_active = self.charsets_active[zoom]
@@ -402,6 +394,22 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
             self.redraw_main()
             self.redraw_mz_chars()
             self.redraw_bitmap()
+
+    @lru_cache
+    def get_mono_font_size(self, zoom):
+        """Search for a font size with line height exactly zoom * 8 px.
+
+        Return zoom * 5 pt if unsuccessful.
+        """
+        for size in range(zoom * 9, -zoom * 9, -1):
+            self.mono_font['size'] = size
+            if self.mono_font.metrics()['linespace'] == zoom * 8:
+                result = size
+                break
+        else:
+            result = zoom * 5
+
+        return result
 
     def redraw_main(self):
         """Update the contents of the 't_adr', 't_hexdump', 't_pc_char' text
