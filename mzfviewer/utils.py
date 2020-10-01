@@ -94,6 +94,10 @@ def generate_and_pickle_data():
     with open(constants.DATA_DIR / 'bitmaps_zoom_3.pickle', 'wb') as f:
         pickle.dump(bitmaps_zoom_3, f)
 
+    flipped = bytes(generate_flipped())
+    with open(constants.DATA_DIR / 'flipped.pickle', 'wb') as f:
+        pickle.dump(flipped, f)
+
 
 if __name__ == '__main__':
     generate_and_pickle_data()

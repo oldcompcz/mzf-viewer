@@ -72,7 +72,8 @@ class ViewerApp(tk.Tk):    # pylint: disable=too-many-ancestors
                      for bitmap in bitmaps_zoom_3)
         }
 
-        self.flipped_values = tuple(utils.generate_flipped())
+        with open(constants.DATA_DIR / 'flipped.pickle', 'rb') as f:
+            self.flipped_values = pickle.load(f)
         with open(constants.DATA_DIR / 'asc_to_disp.pickle', 'rb') as f:
             self.asc_to_disp = pickle.load(f)
         self.fn_id_cache = defaultdict(lambda: {'<Enter>': {}, '<Leave>': {}})
